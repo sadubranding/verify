@@ -3,27 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#f2f2f7">
 <title>Certificate Verification | Ahlan Qahwa Barista Training Center</title>
 <style>
 :root{
+  color-scheme:light;
   --bg:#f2f2f7; --card:#ffffff; --text:#1c1c1e; --muted:#6c6c70; --sep:rgba(60,60,67,.14);
   --blue:#007aff; --blue-bg:#e5f0ff; --blue-ink:#0a3a8a;
   --green:#34c759; --green-ink:#14693a; --green-bg:#e3f7e9;
   --red:#ff3b30; --red-ink:#9b1c14; --red-bg:#ffe5e3;
   --portal-bg:#e6f0ff; --portal-ink:#0b2d6b;
   --shadow:0 1px 2px rgba(0,0,0,.04),0 8px 28px rgba(0,0,0,.06);
-}
-@media (prefers-color-scheme: dark){
-  :root{
-    --bg:#000; --card:#1c1c1e; --text:#f5f5f7; --muted:#98989f; --sep:rgba(84,84,88,.5);
-    --blue:#0a84ff; --blue-bg:#0d2748; --blue-ink:#9ec8ff;
-    --green:#30d158; --green-ink:#7ff0a3; --green-bg:#0e3320;
-    --red:#ff453a; --red-ink:#ffaba5; --red-bg:#3d1512;
-    --portal-bg:#0e2447; --portal-ink:#a9cbff;
-    --shadow:none;
-  }
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{-webkit-text-size-adjust:100%}
@@ -87,11 +78,6 @@ h1{
 }
 .idbox small{display:block;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;opacity:.8;margin-bottom:4px}
 .idbox .id{font-size:clamp(20px,5vw,26px);font-weight:700;letter-spacing:.04em;font-variant-numeric:tabular-nums;word-break:break-all}
-.copy{
-  flex:none;border:0;background:var(--blue);color:#fff;font:inherit;font-size:14px;font-weight:600;
-  padding:9px 16px;border-radius:999px;cursor:pointer;transition:transform .12s,opacity .12s;
-}
-.copy:active{transform:scale(.94);opacity:.85}
 
 /* Grouped list */
 .group{margin-top:18px;background:var(--card);border-radius:22px;box-shadow:var(--shadow);overflow:hidden}
@@ -220,7 +206,6 @@ function render(id, c){
   $("result").innerHTML = `
     <div class="idbox">
       <div><small>Certificate ID</small><div class="id" id="cid">${esc(id)}</div></div>
-      <button class="copy" id="cp" type="button">Copy</button>
     </div>
     <div class="group">
       ${row("person","c-gray","Trainee Name",`<div class="val">${esc(c.name)}</div>`)}
@@ -229,9 +214,6 @@ function render(id, c){
       ${row("calcheck","c-teal","Completion Date",`<div class="val">${esc(fmtDate(c.completion))}</div>`)}
       <div class="row"><div class="ic ${valid ? "c-green" : "c-red"}">${ICON.shield}</div><div class="grow"><div class="lab">Status</div></div>${pill}</div>
     </div>`;
-  $("cp").onclick = async () => {
-    try{ await navigator.clipboard.writeText(id); $("cp").textContent = "Copied"; setTimeout(()=>$("cp").textContent="Copy",1500); }catch(e){}
-  };
 }
 
 function notFound(id){
@@ -268,7 +250,6 @@ $("f").addEventListener("submit", e => {
 });
 
 const q = new URLSearchParams(location.search).get("id");
-if(q) $("idin").value = q;
 check(q);
 </script>
 </body>
