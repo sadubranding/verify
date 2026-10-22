@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#f2f2f7">
+<meta name="robots" content="noindex,nofollow">
+<title>Certificate Admin | Ahlan Qahwa Barista Training Center</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root{
+  color-scheme:light;
+  --display:clamp(26px,7vw,40px);
+  --bg:#f2f2f7; --card:#fff; --text:#1c1c1e; --muted:#6c6c70; --sep:rgba(60,60,67,.14);
+  --blue:#007aff; --blue-bg:#b9d4ff; --blue-ink:#052557;
+  --green:#34c759; --green-ink:#14693a; --green-bg:#e3f7e9;
+  --red:#ff3b30; --red-ink:#9b1c14; --red-bg:#ffe5e3;
+  --shadow:0 1px 2px rgba(0,0,0,.04),0 8px 28px rgba(0,0,0,.06);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Inter","Segoe UI",Roboto,"Noto Sans Bengali",Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;line-height:1.4;
+  padding:max(20px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(40px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));
+}
+.wrap{max-width:640px;margin:0 auto}
+svg{display:block}
+.top{display:flex;justify-content:center;margin-top:8px}
+.pill{display:inline-flex;align-items:center;gap:8px;background:var(--blue-bg);color:var(--blue-ink);font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:9px 18px;border-radius:999px}
+.pill svg{width:14px;height:14px}
+h1{margin:18px 0 8px;text-align:center;font-size:var(--display);line-height:1.1;font-weight:800;letter-spacing:-.03em}
+.sub{margin:0 auto 22px;text-align:center;max-width:460px;font-size:17px;color:var(--muted)}
+.h3{margin:22px 0 8px 8px;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+
+.group{background:var(--card);border-radius:22px;box-shadow:var(--shadow);overflow:hidden}
+.row{display:flex;align-items:center;gap:14px;padding:12px 18px;position:relative}
+.row + .row::before{content:"";position:absolute;top:0;left:68px;right:0;height:1px;background:var(--sep)}
+.ic{flex:none;width:36px;height:36px;border-radius:10px;display:grid;place-items:center;color:#fff}
+.ic svg{width:20px;height:20px}
+.c-gray{background:linear-gradient(#8e8e93,#6c6c70)}
+.c-orange{background:linear-gradient(#ffa63d,#ff8a00)}
+.c-red{background:linear-gradient(#ff6259,#ff3b30)}
+.c-teal{background:linear-gradient(#4dd0e1,#1fb5c9)}
+.c-blue{background:linear-gradient(#4da3ff,#007aff)}
+.c-green{background:linear-gradient(#4cd964,#2fb350)}
+.grow{flex:1;min-width:0}
+.lab{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+input{width:100%;border:0;outline:0;background:transparent;color:var(--text);font:inherit;font-size:17px;font-weight:600;padding:3px 0 2px}
+input::placeholder{color:#b0b0b6;font-weight:400}
+input[type=date]{min-height:28px}
+
+.btn{display:block;width:100%;border:0;background:var(--blue);color:#fff;font:inherit;font-size:17px;font-weight:600;padding:16px;border-radius:16px;cursor:pointer;margin-top:18px;transition:transform .12s,opacity .12s}
+.btn:active{transform:scale(.98);opacity:.9}
+.btn[disabled]{opacity:.55;cursor:wait}
+.btn.sec{background:var(--blue-bg);color:var(--blue-ink)}
+.btn.plain{background:var(--card);color:var(--blue);box-shadow:var(--shadow)}
+.msg{margin:14px 8px 0;font-size:14px;color:var(--red-ink);background:var(--red-bg);border-radius:14px;padding:12px 14px;display:none}
+.help{margin:8px 10px 0;font-size:13px;color:var(--muted)}
+
+.conn{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--green-bg);color:var(--green-ink);border-radius:16px;padding:12px 16px;font-size:14px;font-weight:600}
+.conn button{border:0;background:transparent;color:var(--blue);font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+
+/* result */
+.hero{margin-top:22px;border-radius:28px;padding:26px 18px 24px;text-align:center;color:#fff;background:linear-gradient(145deg,#4ade80 0%,#22c55e 45%,#12994a 100%);box-shadow:0 14px 40px -12px rgba(30,160,80,.55);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(120% 80% at 0% 0%,rgba(255,255,255,.35),transparent 55%)}
+.hero h2{position:relative;margin:0 0 6px;font-size:clamp(22px,6vw,28px);font-weight:800;letter-spacing:-.02em}
+.hero p{position:relative;margin:0;font-size:15px;opacity:.96}
+.qrcard{margin-top:18px;background:var(--card);border-radius:22px;box-shadow:var(--shadow);padding:22px;text-align:center}
+.qrbox{width:200px;height:200px;margin:0 auto;background:#fff;border-radius:12px}
+.qrbox canvas,.qrbox img{width:100% !important;height:100% !important;display:block}
+.idbox{margin-top:18px;background:var(--blue-bg);color:var(--blue-ink);border-radius:22px;padding:16px 20px}
+.idbox small{display:block;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;opacity:.8;margin-bottom:4px}
+.idbox .id{font-size:clamp(18px,5vw,22px);font-weight:700;letter-spacing:.04em;word-break:break-all}
+.spin{display:inline-block;width:16px;height:16px;border:2.5px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;animation:s .7s linear infinite;vertical-align:-3px;margin-right:8px}
+@keyframes s{to{transform:rotate(360deg)}}
+.hidden{display:none !important}
+</style>
+</head>
+<body>
+<main class="wrap">
+
+  <div class="top">
+    <span class="pill">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg>
+      Admin Panel
+    </span>
+  </div>
+  <h1>Certificate Generator</h1>
+  <p class="sub">Create a certificate ID and QR code. The record is saved to the verification database automatically.</p>
+
+  <!-- Connection (first time only) -->
+  <div id="connected" class="conn hidden">
+    <span id="connText">Connected</span>
+    <button type="button" id="editConn">Settings</button>
+  </div>
+
+  <section id="setup" class="hidden">
+    <div class="h3">GitHub Connection (one time)</div>
+    <div class="group">
+      <div class="row"><div class="ic c-gray"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4.5 20c.8-3.6 3.8-5.5 7.5-5.5s6.7 1.9 7.5 5.5"/></svg></div>
+        <div class="grow"><div class="lab">GitHub Username</div><input id="owner" value="sadubranding" autocapitalize="none" spellcheck="false"></div></div>
+      <div class="row"><div class="ic c-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5v-15z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/></svg></div>
+        <div class="grow"><div class="lab">Repository Name</div><input id="repo" value="verify" autocapitalize="none" spellcheck="false"></div></div>
+      <div class="row"><div class="ic c-red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M16 7l3 3M14 9l2 2"/></svg></div>
+        <div class="grow"><div class="lab">Access Token</div><input id="token" type="password" placeholder="github_pat_..." autocapitalize="none" autocomplete="off" spellcheck="false"></div></div>
+      <div class="row"><div class="ic c-teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h16M4 15h16M10 3L8 21M16 3l-2 18"/></svg></div>
+        <div class="grow"><div class="lab">Certificate ID Prefix</div><input id="prefix" value="AQ" maxlength="6" autocapitalize="characters" spellcheck="false"></div></div>
+    </div>
+    <p class="help">The token is saved only in this browser on this device. It is never uploaded anywhere.</p>
+    <button class="btn" id="saveConn" type="button">Save &amp; Connect</button>
+    <div class="msg" id="connErr"></div>
+  </section>
+
+  <!-- Form -->
+  <section id="formSec" class="hidden">
+    <div class="h3">Trainee Details</div>
+    <div class="group">
+      <div class="row"><div class="ic c-gray"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4.5 20c.8-3.6 3.8-5.5 7.5-5.5s6.7 1.9 7.5 5.5"/></svg></div>
+        <div class="grow"><div class="lab">Trainee Name</div><input id="name" placeholder="Full name" autocomplete="off"></div></div>
+      <div class="row"><div class="ic c-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h12v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V9z"/><path d="M16 10h1.5a2.5 2.5 0 0 1 0 5H16"/><path d="M8 3.5c0 1 .8 1.2.8 2.2M12 3.5c0 1 .8 1.2.8 2.2"/></svg></div>
+        <div class="grow"><div class="lab">Course Name</div><input id="course" placeholder="e.g. Professional Barista Training" autocomplete="off"></div></div>
+      <div class="row"><div class="ic c-red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg></div>
+        <div class="grow"><div class="lab">Issue Date</div><input id="issue" type="date"></div></div>
+      <div class="row"><div class="ic c-teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M9 15l2 2 4-4"/></svg></div>
+        <div class="grow"><div class="lab">Completion Date</div><input id="completion" type="date"></div></div>
+    </div>
+    <button class="btn" id="gen" type="button">Generate ID &amp; QR</button>
+    <div class="msg" id="err"></div>
+  </section>
+
+  <!-- Result -->
+  <section id="result" class="hidden">
+    <div class="hero">
+      <h2>CERTIFICATE CREATED</h2>
+      <p>Saved to the verification database automatically.</p>
+    </div>
+    <div class="qrcard">
+      <div class="qrbox" id="qr"></div>
+    </div>
+    <div class="idbox"><small>Certificate ID</small><div class="id" id="cid"></div></div>
+    <button class="btn" id="dl" type="button">Download QR Image</button>
+    <button class="btn sec" id="openv" type="button">Open Verification Page</button>
+    <button class="btn plain" id="another" type="button">Add Another Trainee</button>
+  </section>
+
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const CH = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+let cfg = { owner:"sadubranding", repo:"verify", token:"", prefix:"AQ" };
+let cur = { id:"", url:"" };
+
+function load(){ try{ const j = JSON.parse(localStorage.getItem("aq_admin_cfg") || "null"); if(j) cfg = Object.assign(cfg, j); }catch(e){} }
+function save(){ try{ localStorage.setItem("aq_admin_cfg", JSON.stringify(cfg)); }catch(e){} }
+function clearSaved(){ try{ localStorage.removeItem("aq_admin_cfg"); }catch(e){} }
+
+function showErr(el, t){ el.textContent = t; el.style.display = t ? "block" : "none"; }
+function b64ToUtf8(b64){ const bin = atob(b64.replace(/\s/g,"")); return new TextDecoder().decode(Uint8Array.from(bin, c => c.charCodeAt(0))); }
+function utf8ToB64(str){ const bytes = new TextEncoder().encode(str); let bin = ""; bytes.forEach(b => bin += String.fromCharCode(b)); return btoa(bin); }
+function rid(){ const a = new Uint32Array(6); crypto.getRandomValues(a); return Array.from(a, n => CH[n % CH.length]).join(""); }
+
+function api(path, opts = {}){
+  return fetch(`https://api.github.com/repos/${encodeURIComponent(cfg.owner)}/${encodeURIComponent(cfg.repo)}/contents/${path}`, Object.assign({
+    cache:"no-store",
+    headers:{ "Authorization":"Bearer " + cfg.token, "Accept":"application/vnd.github+json" }
+  }, opts));
+}
+
+function explain(res){
+  if(res.status === 401) return "Token ta thik na ba expire hoye geche. Notun token baniye abar try koro.";
+  if(res.status === 403) return "Token e permission nai. Token er 'Contents: Read and write' permission on ache kina dekho.";
+  if(res.status === 404) return "Repository ba data.json file paoa jay ni. Username, repository name ar token er repository access thik ache kina dekho.";
+  return "Kichu ekta bhul hoyeche (code " + res.status + "). Abar try koro.";
+}
+
+function setView(){
+  const ready = !!cfg.token;
+  $("setup").classList.toggle("hidden", ready);
+  $("connected").classList.toggle("hidden", !ready);
+  $("formSec").classList.toggle("hidden", !ready || !$("result").classList.contains("hidden"));
+  if(ready) $("connText").textContent = `Connected: ${cfg.owner}/${cfg.repo}`;
+}
+
+$("saveConn").onclick = async () => {
+  showErr($("connErr"), "");
+  const owner = $("owner").value.trim(), repo = $("repo").value.trim(), token = $("token").value.trim();
+  const prefix = ($("prefix").value.trim() || "AQ").toUpperCase().replace(/[^A-Z0-9]/g,"");
+  if(!owner || !repo || !token){ showErr($("connErr"), "Username, repository ar token tinta-i lagbe."); return; }
+  const old = Object.assign({}, cfg);
+  cfg = { owner, repo, token, prefix: prefix || "AQ" };
+  const b = $("saveConn"); b.disabled = true; b.innerHTML = '<span class="spin"></span>Connecting...';
+  try{
+    const res = await api("data.json");
+    if(!res.ok){ cfg = old; showErr($("connErr"), explain(res)); }
+    else { save(); $("token").value = ""; setView(); }
+  }catch(e){ cfg = old; showErr($("connErr"), "Internet connection check koro."); }
+  b.disabled = false; b.textContent = "Save & Connect";
+};
+
+$("editConn").onclick = () => {
+  $("owner").value = cfg.owner; $("repo").value = cfg.repo; $("prefix").value = cfg.prefix; $("token").value = "";
+  $("setup").classList.remove("hidden"); $("connected").classList.add("hidden"); $("formSec").classList.add("hidden"); $("result").classList.add("hidden");
+  showErr($("connErr"), "Notun token dile seta save hobe. Token mucte chaile nichey Disconnect chapo.");
+  if(!$("disc")){
+    const d = document.createElement("button"); d.id = "disc"; d.type = "button"; d.className = "btn plain"; d.textContent = "Disconnect (remove token from this device)";
+    d.onclick = () => { cfg.token = ""; clearSaved(); d.remove(); showErr($("connErr"), ""); setView(); };
+    $("setup").appendChild(d);
+  }
+};
+
+async function addCertificate(entry){
+  for(let attempt = 0; attempt < 3; attempt++){
+    const g = await api("data.json");
+    if(!g.ok) throw new Error(explain(g));
+    const file = await g.json();
+    let data;
+    try{ data = JSON.parse(b64ToUtf8(file.content)); }catch(e){ throw new Error("data.json er format bhul. GitHub e file ta check koro."); }
+    data.certificates = data.certificates || {};
+    let id;
+    do { id = `${cfg.prefix}-${new Date().getFullYear()}-${rid()}`; } while(data.certificates[id]);
+    data.certificates[id] = entry;
+    const body = JSON.stringify({
+      message: `Add certificate ${id}`,
+      content: utf8ToB64(JSON.stringify(data, null, 2) + "\n"),
+      sha: file.sha
+    });
+    const p = await api("data.json", { method:"PUT", body, headers:{ "Authorization":"Bearer " + cfg.token, "Accept":"application/vnd.github+json", "Content-Type":"application/json" } });
+    if(p.ok) return id;
+    if(p.status === 409 || p.status === 422) continue; // file changed meanwhile, try again
+    throw new Error(explain(p));
+  }
+  throw new Error("Save korte parini. Ektu pore abar try koro.");
+}
+
+$("gen").onclick = async () => {
+  showErr($("err"), "");
+  const name = $("name").value.trim(), course = $("course").value.trim(), issue = $("issue").value, completion = $("completion").value;
+  if(!name || !course || !issue || !completion){ showErr($("err"), "Shob ghor puron koro."); return; }
+  const b = $("gen"); b.disabled = true; b.innerHTML = '<span class="spin"></span>Saving...';
+  try{
+    const id = await addCertificate({ name, course, issue, completion, status:"valid" });
+    const url = `https://${cfg.owner}.github.io/${cfg.repo}/?id=${id}`;
+    cur = { id, url };
+    $("cid").textContent = id;
+    $("qr").innerHTML = "";
+    new QRCode($("qr"), { text:url, width:512, height:512, correctLevel:QRCode.CorrectLevel.H });
+    try{ localStorage.setItem("aq_last_course", course); }catch(e){}
+    $("formSec").classList.add("hidden");
+    $("result").classList.remove("hidden");
+    window.scrollTo({ top:0, behavior:"smooth" });
+  }catch(e){
+    showErr($("err"), e.message || "Kichu ekta bhul hoyeche.");
+  }
+  b.disabled = false; b.textContent = "Generate ID & QR";
+};
+
+$("dl").onclick = () => {
+  const src = $("qr").querySelector("canvas") || $("qr").querySelector("img");
+  if(!src) return;
+  const pad = 48, size = 512, c = document.createElement("canvas");
+  c.width = c.height = size + pad * 2;
+  const x = c.getContext("2d");
+  x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height);
+  x.imageSmoothingEnabled = false;
+  x.drawImage(src, pad, pad, size, size);
+  const a = document.createElement("a");
+  a.download = cur.id + ".png"; a.href = c.toDataURL("image/png"); a.click();
+};
+$("openv").onclick = () => window.open(cur.url, "_blank", "noopener");
+$("another").onclick = () => {
+  $("name").value = ""; $("issue").value = ""; $("completion").value = "";
+  $("result").classList.add("hidden"); setView();
+  window.scrollTo({ top:0, behavior:"smooth" });
+};
+
+load();
+try{ const lc = localStorage.getItem("aq_last_course"); if(lc) $("course").value = lc; }catch(e){}
+$("issue").value = new Date().toISOString().slice(0,10);
+setView();
+</script>
+</body>
+</html>
