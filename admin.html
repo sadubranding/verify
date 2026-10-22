@@ -56,6 +56,9 @@ input[type=date]{min-height:28px}
 .btn:active{transform:scale(.98);opacity:.9}
 .btn[disabled]{opacity:.55;cursor:wait}
 .btn.sec{background:var(--blue-bg);color:var(--blue-ink)}
+.btn.ic2{display:flex;align-items:center;justify-content:center;gap:10px}
+.btn.ic2 svg{width:22px;height:22px;flex:none}
+.link{display:block;margin:22px auto 0;border:0;background:transparent;color:var(--muted);font:inherit;font-size:14px;font-weight:500;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 .btn.plain{background:var(--card);color:var(--blue);box-shadow:var(--shadow)}
 .msg{margin:14px 8px 0;font-size:14px;color:var(--red-ink);background:var(--red-bg);border-radius:14px;padding:12px 14px;display:none}
 .help{margin:8px 10px 0;font-size:13px;color:var(--muted)}
@@ -71,7 +74,11 @@ input[type=date]{min-height:28px}
 .qrcard{margin-top:18px;background:var(--card);border-radius:22px;box-shadow:var(--shadow);padding:22px;text-align:center}
 .qrbox{width:200px;height:200px;margin:0 auto;background:#fff;border-radius:12px}
 .qrbox canvas,.qrbox img{width:100% !important;height:100% !important;display:block}
-.idbox{margin-top:18px;background:var(--blue-bg);color:var(--blue-ink);border-radius:22px;padding:16px 20px}
+.idbox{margin-top:18px;background:var(--blue-bg);color:var(--blue-ink);border-radius:22px;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.copy{flex:none;display:inline-flex;align-items:center;gap:6px;border:0;background:var(--blue);color:#fff;font:inherit;font-size:14px;font-weight:600;padding:10px 16px;border-radius:999px;cursor:pointer;transition:transform .12s,opacity .12s}
+.copy svg{width:16px;height:16px}
+.copy:active{transform:scale(.94);opacity:.85}
+.copy.done{background:var(--green)}
 .idbox small{display:block;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;opacity:.8;margin-bottom:4px}
 .idbox .id{font-size:clamp(18px,5vw,22px);font-weight:700;letter-spacing:.04em;word-break:break-all}
 .spin{display:inline-block;width:16px;height:16px;border:2.5px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;animation:s .7s linear infinite;vertical-align:-3px;margin-right:8px}
@@ -121,11 +128,11 @@ input[type=date]{min-height:28px}
       <div class="row"><div class="ic c-gray"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4.5 20c.8-3.6 3.8-5.5 7.5-5.5s6.7 1.9 7.5 5.5"/></svg></div>
         <div class="grow"><div class="lab">Trainee Name</div><input id="name" placeholder="Full name" autocomplete="off"></div></div>
       <div class="row"><div class="ic c-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h12v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V9z"/><path d="M16 10h1.5a2.5 2.5 0 0 1 0 5H16"/><path d="M8 3.5c0 1 .8 1.2.8 2.2M12 3.5c0 1 .8 1.2.8 2.2"/></svg></div>
-        <div class="grow"><div class="lab">Course Name</div><input id="course" placeholder="e.g. Professional Barista Training" autocomplete="off"></div></div>
+        <div class="grow"><div class="lab">Course Name</div><input id="course" value="Professional Barista Training" autocomplete="off"></div></div>
       <div class="row"><div class="ic c-red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg></div>
-        <div class="grow"><div class="lab">Issue Date</div><input id="issue" type="date"></div></div>
+        <div class="grow"><div class="lab">Issue Date</div><input id="issue" inputmode="numeric" placeholder="DD/MM/YYYY" maxlength="10" autocomplete="off"></div></div>
       <div class="row"><div class="ic c-teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M9 15l2 2 4-4"/></svg></div>
-        <div class="grow"><div class="lab">Completion Date</div><input id="completion" type="date"></div></div>
+        <div class="grow"><div class="lab">Completion Date</div><input id="completion" inputmode="numeric" placeholder="DD/MM/YYYY" maxlength="10" autocomplete="off"></div></div>
     </div>
     <button class="btn" id="gen" type="button">Generate ID &amp; QR</button>
     <div class="msg" id="err"></div>
@@ -140,16 +147,20 @@ input[type=date]{min-height:28px}
     <div class="qrcard">
       <div class="qrbox" id="qr"></div>
     </div>
-    <div class="idbox"><small>Certificate ID</small><div class="id" id="cid"></div></div>
-    <button class="btn" id="dl" type="button">Download QR Image</button>
-    <button class="btn sec" id="openv" type="button">Open Verification Page</button>
-    <button class="btn plain" id="another" type="button">Add Another Trainee</button>
+    <div class="idbox">
+      <div><small>Certificate ID</small><div class="id" id="cid"></div></div>
+      <button class="copy" id="cp" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15V6.5A2.5 2.5 0 0 1 7.5 4H15"/></svg><span id="cpt">Copy</span></button>
+    </div>
+    <button class="btn ic2" id="dl" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M5 19.5h14"/></svg>Download QR Image</button>
+    <button class="btn sec ic2" id="another" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9.5" cy="8" r="3.8"/><path d="M2.8 19.5c.7-3.4 3.4-5.2 6.7-5.2s6 1.8 6.7 5.2"/><path d="M19 8v6M16 11h6"/></svg>Add Another Trainee</button>
+    <button class="link" id="openv" type="button">Open verification page</button>
   </section>
 
 </main>
 
 <script>
 const $ = id => document.getElementById(id);
+const DEFAULT_COURSE = "Professional Barista Training";
 const CH = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 let cfg = { owner:"sadubranding", repo:"verify", token:"", prefix:"AQ" };
 let cur = { id:"", url:"" };
@@ -161,6 +172,14 @@ function clearSaved(){ try{ localStorage.removeItem("aq_admin_cfg"); }catch(e){}
 function showErr(el, t){ el.textContent = t; el.style.display = t ? "block" : "none"; }
 function b64ToUtf8(b64){ const bin = atob(b64.replace(/\s/g,"")); return new TextDecoder().decode(Uint8Array.from(bin, c => c.charCodeAt(0))); }
 function utf8ToB64(str){ const bytes = new TextEncoder().encode(str); let bin = ""; bytes.forEach(b => bin += String.fromCharCode(b)); return btoa(bin); }
+function parseDMY(str){
+  const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec((str || "").trim());
+  if(!m) return null;
+  const d = +m[1], mo = +m[2], y = +m[3];
+  const dt = new Date(Date.UTC(y, mo - 1, d));
+  if(dt.getUTCFullYear() !== y || dt.getUTCMonth() !== mo - 1 || dt.getUTCDate() !== d) return null;
+  return `${m[3]}-${m[2]}-${m[1]}`;
+}
 function rid(){ const a = new Uint32Array(6); crypto.getRandomValues(a); return Array.from(a, n => CH[n % CH.length]).join(""); }
 
 function api(path, opts = {}){
@@ -238,8 +257,10 @@ async function addCertificate(entry){
 
 $("gen").onclick = async () => {
   showErr($("err"), "");
-  const name = $("name").value.trim(), course = $("course").value.trim(), issue = $("issue").value, completion = $("completion").value;
-  if(!name || !course || !issue || !completion){ showErr($("err"), "Shob ghor puron koro."); return; }
+  const name = $("name").value.trim(), course = $("course").value.trim();
+  const issue = parseDMY($("issue").value), completion = parseDMY($("completion").value);
+  if(!name || !course || !$("issue").value.trim() || !$("completion").value.trim()){ showErr($("err"), "Shob ghor puron koro."); return; }
+  if(!issue || !completion){ showErr($("err"), "Date DD/MM/YYYY format e likho, jemon 25/10/2026."); return; }
   const b = $("gen"); b.disabled = true; b.innerHTML = '<span class="spin"></span>Saving...';
   try{
     const id = await addCertificate({ name, course, issue, completion, status:"valid" });
@@ -248,7 +269,6 @@ $("gen").onclick = async () => {
     $("cid").textContent = id;
     $("qr").innerHTML = "";
     new QRCode($("qr"), { text:url, width:512, height:512, correctLevel:QRCode.CorrectLevel.H });
-    try{ localStorage.setItem("aq_last_course", course); }catch(e){}
     $("formSec").classList.add("hidden");
     $("result").classList.remove("hidden");
     window.scrollTo({ top:0, behavior:"smooth" });
@@ -272,14 +292,22 @@ $("dl").onclick = () => {
 };
 $("openv").onclick = () => window.open(cur.url, "_blank", "noopener");
 $("another").onclick = () => {
-  $("name").value = ""; $("issue").value = ""; $("completion").value = "";
+  $("name").value = ""; $("course").value = DEFAULT_COURSE; $("issue").value = ""; $("completion").value = "";
   $("result").classList.add("hidden"); setView();
   window.scrollTo({ top:0, behavior:"smooth" });
 };
 
 load();
-try{ const lc = localStorage.getItem("aq_last_course"); if(lc) $("course").value = lc; }catch(e){}
-$("issue").value = new Date().toISOString().slice(0,10);
+["issue","completion"].forEach(id => $(id).addEventListener("input", e => {
+  const d = e.target.value.replace(/\D/g,"").slice(0,8);
+  e.target.value = d.length > 4 ? `${d.slice(0,2)}/${d.slice(2,4)}/${d.slice(4)}` : d.length > 2 ? `${d.slice(0,2)}/${d.slice(2)}` : d;
+}));
+$("cp").onclick = async () => {
+  try{ await navigator.clipboard.writeText(cur.id); }
+  catch(e){ const t = document.createElement("textarea"); t.value = cur.id; document.body.appendChild(t); t.select(); try{ document.execCommand("copy"); }catch(_){} t.remove(); }
+  $("cpt").textContent = "Copied"; $("cp").classList.add("done");
+  setTimeout(() => { $("cpt").textContent = "Copy"; $("cp").classList.remove("done"); }, 1600);
+};
 setView();
 </script>
 </body>
