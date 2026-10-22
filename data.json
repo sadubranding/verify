@@ -23,6 +23,13 @@
       "issue": "2026-09-20",
       "completion": "2026-10-22",
       "status": "valid"
+    },
+    "AQ-2026-EXTACP": {
+      "name": "Mahmud Hasan",
+      "course": "Professional Barista Training",
+      "issue": "2026-09-09",
+      "completion": "2026-10-20",
+      "status": "valid"
     }
   }
 }
