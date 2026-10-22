@@ -10,10 +10,10 @@
 :root{
   color-scheme:light;
   --bg:#f2f2f7; --card:#ffffff; --text:#1c1c1e; --muted:#6c6c70; --sep:rgba(60,60,67,.14);
-  --blue:#007aff; --blue-bg:#e5f0ff; --blue-ink:#0a3a8a;
+  --blue:#007aff; --blue-bg:#cfe2ff; --blue-ink:#08306b;
   --green:#34c759; --green-ink:#14693a; --green-bg:#e3f7e9;
   --red:#ff3b30; --red-ink:#9b1c14; --red-bg:#ffe5e3;
-  --portal-bg:#e6f0ff; --portal-ink:#0b2d6b;
+  --portal-bg:#cfe2ff; --portal-ink:#08306b;
   --shadow:0 1px 2px rgba(0,0,0,.04),0 8px 28px rgba(0,0,0,.06);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -33,7 +33,9 @@ svg{display:block}
   display:inline-flex;align-items:center;gap:8px;
   background:var(--portal-bg);color:var(--portal-ink);
   font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
-  padding:8px 16px;border-radius:999px;
+  padding:9px 18px;border-radius:999px;
+  border:1.5px solid rgba(0,122,255,.38);
+  box-shadow:0 4px 14px rgba(0,122,255,.18);
 }
 .pill svg{width:14px;height:14px}
 h1{
@@ -75,6 +77,8 @@ h1{
 .idbox{
   margin-top:18px;background:var(--blue-bg);color:var(--blue-ink);
   border-radius:22px;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  border:1.5px solid rgba(0,122,255,.38);
+  box-shadow:0 8px 22px rgba(0,122,255,.18);
 }
 .idbox small{display:block;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;opacity:.8;margin-bottom:4px}
 .idbox .id{font-size:clamp(20px,5vw,26px);font-weight:700;letter-spacing:.04em;font-variant-numeric:tabular-nums;word-break:break-all}
