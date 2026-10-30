@@ -102,6 +102,8 @@ h1{
 .status.bad{background:var(--red-bg);color:var(--red-ink)}
 .status svg{width:16px;height:16px}
 
+.photo{display:flex;justify-content:center;margin-top:18px}
+.photo img{width:150px;aspect-ratio:3/4;object-fit:cover;border-radius:20px;box-shadow:var(--shadow);background:#e5e5ea}
 /* Search */
 .search{margin-top:24px}
 .search h3{margin:0 0 10px 6px;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
@@ -208,6 +210,7 @@ function render(id, c){
     <div class="idbox">
       <div><small>Certificate ID</small><div class="id" id="cid">${esc(id)}</div></div>
     </div>
+    ${c.photo ? `<div class="photo"><img src="${esc(c.photo)}" alt="Trainee photo" onerror="this.parentNode.remove()"></div>` : ""}
     <div class="group">
       ${row("person","c-gray","Trainee Name",`<div class="val">${esc(c.name)}</div>`)}
       ${row("cup","c-orange","Course Name",`<div class="val">${esc(c.course)}</div>`)}

@@ -61,6 +61,23 @@ input[type=date]{min-height:28px}
 .cal:active{transform:scale(.92)}
 .cal svg{width:19px;height:19px}
 .date .native{position:absolute;right:0;bottom:0;width:34px;height:1px;opacity:0;pointer-events:none;border:0;padding:0}
+.pickbtn{border:0;background:transparent;color:var(--blue);font:inherit;font-size:17px;font-weight:600;padding:3px 0;cursor:pointer}
+.thumb{width:42px;height:56px;object-fit:cover;border-radius:8px;flex:none}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;padding:16px;z-index:50}
+.modal.on{display:flex}
+.sheet{background:var(--card);border-radius:24px;padding:20px;width:100%;max-width:340px;text-align:center}
+.sheet h3{margin:0 0 4px;font-size:19px}
+.sheet p{margin:0 0 14px;font-size:13px;color:var(--muted)}
+.frame{position:relative;width:270px;height:360px;margin:0 auto;border-radius:12px;overflow:hidden;background:#ddd;touch-action:none}
+.frame canvas{width:100%;height:100%;display:block;cursor:grab;touch-action:none}
+.grid{position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.6);background:
+ linear-gradient(rgba(255,255,255,.7),rgba(255,255,255,.7)) 33.33% 0/1px 100% no-repeat,
+ linear-gradient(rgba(255,255,255,.7),rgba(255,255,255,.7)) 66.66% 0/1px 100% no-repeat,
+ linear-gradient(rgba(255,255,255,.7),rgba(255,255,255,.7)) 0 33.33%/100% 1px no-repeat,
+ linear-gradient(rgba(255,255,255,.7),rgba(255,255,255,.7)) 0 66.66%/100% 1px no-repeat}
+.sheet input[type=range]{margin:16px 0 2px;padding:0;accent-color:var(--blue)}
+.two{display:flex;gap:10px}
+.two .btn{margin-top:14px}
 .btn{display:block;width:100%;border:0;background:var(--blue);color:#fff;font:inherit;font-size:17px;font-weight:600;padding:16px;border-radius:16px;cursor:pointer;margin-top:18px;transition:transform .12s,opacity .12s}
 .btn:active{transform:scale(.98);opacity:.9}
 .btn[disabled]{opacity:.55;cursor:wait}
@@ -134,6 +151,8 @@ input[type=date]{min-height:28px}
   <section id="formSec" class="hidden">
     <div class="h3">Trainee Details</div>
     <div class="group">
+      <div class="row"><div class="ic c-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l9 4.5-9 4.5L3 8.5 12 4z"/><path d="M3 12.5l9 4.5 9-4.5"/></svg></div>
+        <div class="grow"><div class="lab">Batch</div><input id="batch" placeholder="e.g. Batch 05" autocomplete="off"></div></div>
       <div class="row"><div class="ic c-gray"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4.5 20c.8-3.6 3.8-5.5 7.5-5.5s6.7 1.9 7.5 5.5"/></svg></div>
         <div class="grow"><div class="lab">Trainee Name</div><input id="name" placeholder="Full name" autocomplete="off"></div></div>
       <div class="row"><div class="ic c-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h12v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V9z"/><path d="M16 10h1.5a2.5 2.5 0 0 1 0 5H16"/><path d="M8 3.5c0 1 .8 1.2.8 2.2M12 3.5c0 1 .8 1.2.8 2.2"/></svg></div>
@@ -158,6 +177,9 @@ input[type=date]{min-height:28px}
             <button class="cal" type="button" aria-label="Open calendar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg></button>
             <input class="native" type="date" tabindex="-1" aria-hidden="true">
           </div></div></div>
+      <div class="row"><div class="ic c-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13.5" r="3.5"/></svg></div>
+        <div class="grow"><div class="lab">Trainee Photo</div><button class="pickbtn" id="pick" type="button">Choose photo</button><input type="file" id="file" accept="image/*" class="hidden"></div>
+        <img id="thumb" class="thumb hidden" alt=""></div>
     </div>
     <button class="btn" id="gen" type="button">Generate ID &amp; QR</button>
     <div class="msg" id="err"></div>
@@ -183,6 +205,12 @@ input[type=date]{min-height:28px}
 
 </main>
 
+<div class="modal" id="modal"><div class="sheet">
+  <h3>Adjust Photo</h3><p>Drag to move. Pinch or use the slider to zoom.</p>
+  <div class="frame"><canvas id="cv"></canvas><div class="grid"></div></div>
+  <input type="range" id="zoom" min="1" max="4" step="0.01" value="1" aria-label="Zoom">
+  <div class="two"><button class="btn plain" id="cancel" type="button">Cancel</button><button class="btn" id="use" type="button">Use Photo</button></div>
+</div></div>
 <script>
 const $ = id => document.getElementById(id);
 const DEFAULT_COURSE = "Professional Barista Training";
@@ -244,6 +272,53 @@ function initDate(root){
   root._get = get;
   root._clear = () => { segs.forEach(s => s.value = ""); nat.value = ""; mark(); };
 }
+let photoB64 = "";
+const FW = 270, FH = 360, OW = 600, OH = 800, cv = $("cv"), cx = cv.getContext("2d");
+let im, mn = 1, z = 1, ox = 0, oy = 0;
+function clampP(){ const k = mn * z; ox = Math.min(0, Math.max(FW - im.width * k, ox)); oy = Math.min(0, Math.max(FH - im.height * k, oy)); }
+function draw(g, k){ g.imageSmoothingQuality = "high"; g.clearRect(0, 0, g.canvas.width, g.canvas.height); g.drawImage(im, ox * k, oy * k, im.width * mn * z * k, im.height * mn * z * k); }
+function setZoom(nz){
+  const k = mn * z, px = (FW / 2 - ox) / k, py = (FH / 2 - oy) / k;
+  z = Math.min(4, Math.max(1, nz)); const t = mn * z;
+  ox = FW / 2 - px * t; oy = FH / 2 - py * t; clampP(); $("zoom").value = z; draw(cx, 2);
+}
+$("pick").onclick = () => $("file").click();
+$("file").onchange = e => {
+  const f = e.target.files[0]; e.target.value = ""; if(!f) return;
+  const u = URL.createObjectURL(f); im = new Image();
+  im.onload = () => {
+    URL.revokeObjectURL(u); mn = Math.max(FW / im.width, FH / im.height); z = 1;
+    ox = (FW - im.width * mn) / 2; oy = (FH - im.height * mn) / 2;
+    cv.width = FW * 2; cv.height = FH * 2; $("zoom").value = 1; draw(cx, 2); $("modal").classList.add("on");
+  };
+  im.onerror = () => showErr($("err"), "Chhobi ta khola jachche na. Onno chhobi try koro.");
+  im.src = u;
+};
+const ptr = new Map();
+const dist = () => { const [a, b] = [...ptr.values()]; return Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY); };
+cv.addEventListener("pointerdown", e => { cv.setPointerCapture(e.pointerId); ptr.set(e.pointerId, e); });
+cv.addEventListener("pointermove", e => {
+  if(!ptr.has(e.pointerId)) return;
+  const prev = ptr.get(e.pointerId);
+  if(ptr.size === 2){ const d0 = dist(); ptr.set(e.pointerId, e); const d1 = dist(); if(d0) setZoom(z * d1 / d0); }
+  else { ox += e.clientX - prev.clientX; oy += e.clientY - prev.clientY; ptr.set(e.pointerId, e); clampP(); draw(cx, 2); }
+});
+["pointerup", "pointercancel"].forEach(t => cv.addEventListener(t, e => ptr.delete(e.pointerId)));
+cv.addEventListener("wheel", e => { e.preventDefault(); setZoom(z * (e.deltaY < 0 ? 1.08 : 0.92)); }, { passive:false });
+$("zoom").oninput = e => setZoom(+e.target.value);
+$("cancel").onclick = () => $("modal").classList.remove("on");
+$("use").onclick = () => {
+  const c = document.createElement("canvas"); c.width = OW; c.height = OH;
+  draw(c.getContext("2d"), OW / FW);
+  photoB64 = c.toDataURL("image/jpeg", 0.85).split(",")[1];
+  $("thumb").src = "data:image/jpeg;base64," + photoB64; $("thumb").classList.remove("hidden");
+  $("pick").textContent = "Change photo"; $("modal").classList.remove("on");
+};
+function clearPhoto(){ photoB64 = ""; $("thumb").classList.add("hidden"); $("pick").textContent = "Choose photo"; }
+async function putFile(path, b64, message){
+  const r = await api(path, { method:"PUT", body:JSON.stringify({ message, content:b64 }), headers:{ "Authorization":"Bearer " + cfg.token, "Accept":"application/vnd.github+json", "Content-Type":"application/json" } });
+  if(!r.ok) throw new Error(explain(r));
+}
 function rid(){ const a = new Uint32Array(6); crypto.getRandomValues(a); return Array.from(a, n => CH[n % CH.length]).join(""); }
 
 function api(path, opts = {}){
@@ -295,7 +370,7 @@ $("editConn").onclick = () => {
   }
 };
 
-async function addCertificate(entry){
+async function addCertificate(id, entry){
   for(let attempt = 0; attempt < 3; attempt++){
     const g = await api("data.json");
     if(!g.ok) throw new Error(explain(g));
@@ -303,8 +378,7 @@ async function addCertificate(entry){
     let data;
     try{ data = JSON.parse(b64ToUtf8(file.content)); }catch(e){ throw new Error("data.json er format bhul. GitHub e file ta check koro."); }
     data.certificates = data.certificates || {};
-    let id;
-    do { id = `${cfg.prefix}-${new Date().getFullYear()}-${rid()}`; } while(data.certificates[id]);
+    if(data.certificates[id]) throw new Error("ID duplicate hoyeche, abar try koro.");
     data.certificates[id] = entry;
     const body = JSON.stringify({
       message: `Add certificate ${id}`,
@@ -323,12 +397,16 @@ $("gen").onclick = async () => {
   showErr($("err"), "");
   const name = $("name").value.trim(), course = $("course").value.trim();
   const issueStr = $("issue")._get(), completionStr = $("completion")._get();
-  if(!name || !course || !issueStr || !completionStr){ showErr($("err"), "Shob ghor puron koro. Date duto puro likho (DD/MM/YYYY)."); return; }
+  const batch = $("batch").value.trim();
+  if(!name || !course || !batch || !issueStr || !completionStr){ showErr($("err"), "Shob ghor puron koro. Date duto puro likho (DD/MM/YYYY)."); return; }
   const issue = parseDMY(issueStr), completion = parseDMY(completionStr);
+  if(!photoB64){ showErr($("err"), "Trainee er chhobi dao."); return; }
   if(!issue || !completion){ showErr($("err"), "Date DD/MM/YYYY format e likho, jemon 25/10/2026."); return; }
   const b = $("gen"); b.disabled = true; b.innerHTML = '<span class="spin"></span>Saving...';
   try{
-    const id = await addCertificate({ name, course, issue, completion, status:"valid" });
+    const id = `${cfg.prefix}-${new Date().getFullYear()}-${rid()}`;
+    await putFile(`photos/${id}.jpg`, photoB64, `Add photo ${id}`);
+    await addCertificate(id, { name, course, batch, issue, completion, photo:`photos/${id}.jpg`, status:"valid" });
     const url = `https://${cfg.owner}.github.io/${cfg.repo}/?id=${id}`;
     cur = { id, url };
     $("cid").textContent = id;
@@ -357,7 +435,7 @@ $("dl").onclick = () => {
 };
 $("openv").onclick = () => window.open(cur.url, "_blank", "noopener");
 $("another").onclick = () => {
-  $("name").value = ""; $("course").value = DEFAULT_COURSE; $("issue")._clear(); $("completion")._clear();
+  $("name").value = ""; clearPhoto(); $("course").value = DEFAULT_COURSE; $("issue")._clear(); $("completion")._clear();
   $("result").classList.add("hidden"); setView();
   window.scrollTo({ top:0, behavior:"smooth" });
 };
