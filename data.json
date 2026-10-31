@@ -36,8 +36,10 @@
       "course": "Professional Barista Training",
       "batch": "Test Batch 01",
       "photo": "photos/AQ-2026-3V7KVJ.jpg",
-      "status": "enrolled",
-      "admitted": "2026-10-31"
+      "status": "valid",
+      "admitted": "2026-10-31",
+      "issue": "2026-10-31",
+      "completion": "2026-10-31"
     },
     "AQ-2026-63TN8G": {
       "name": "Test Name Two",
