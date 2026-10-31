@@ -77,6 +77,10 @@ input[type=date]{min-height:28px}
  linear-gradient(rgba(255,255,255,.7),rgba(255,255,255,.7)) 0 66.66%/100% 1px no-repeat}
 .sheet input[type=range]{margin:16px 0 2px;padding:0;accent-color:var(--blue)}
 select{width:100%;border:0;outline:0;background:transparent;color:var(--text);font:inherit;font-size:17px;font-weight:600;padding:3px 0}
+.seg2{display:flex;background:rgba(118,118,128,.16);border-radius:12px;padding:3px;margin-top:22px}
+.seg2 button{flex:1;border:0;background:transparent;color:var(--text);font:inherit;font-size:15px;font-weight:600;padding:9px;border-radius:10px;cursor:pointer}
+.seg2 button.on{background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.15)}
+.row.first::before{display:none}
 .two{display:flex;gap:10px}
 .two .btn{margin-top:14px}
 .btn{display:block;width:100%;border:0;background:var(--blue);color:#fff;font:inherit;font-size:17px;font-weight:600;padding:16px;border-radius:16px;cursor:pointer;margin-top:18px;transition:transform .12s,opacity .12s}
@@ -150,8 +154,11 @@ select{width:100%;border:0;outline:0;background:transparent;color:var(--text);fo
 
   <!-- Form -->
   <section id="formSec" class="hidden">
+    <div class="seg2" id="modeSeg"><button type="button" data-m="adm" class="on">Admission</button><button type="button" data-m="iss">Issue Certificate</button></div>
     <div class="h3">Trainee Details</div>
     <div class="group">
+      <div class="row"><div class="ic c-gray"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4.5 20c.8-3.6 3.8-5.5 7.5-5.5s6.7 1.9 7.5 5.5"/></svg></div>
+        <div class="grow"><div class="lab">Trainee</div><select id="pick2"></select></div></div>
       <div class="row"><div class="ic c-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l9 4.5-9 4.5L3 8.5 12 4z"/><path d="M3 12.5l9 4.5 9-4.5"/></svg></div>
         <div class="grow"><div class="lab">Batch</div><input id="batch" placeholder="e.g. Batch 05" autocomplete="off"></div></div>
       <div class="row"><div class="ic c-gray"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4.5 20c.8-3.6 3.8-5.5 7.5-5.5s6.7 1.9 7.5 5.5"/></svg></div>
@@ -182,7 +189,7 @@ select{width:100%;border:0;outline:0;background:transparent;color:var(--text);fo
         <div class="grow"><div class="lab">Trainee Photo</div><button class="pickbtn" id="pick" type="button">Choose photo</button><input type="file" id="file" accept="image/*" class="hidden"></div>
         <img id="thumb" class="thumb hidden" alt=""></div>
     </div>
-    <button class="btn" id="gen" type="button">Generate ID &amp; QR</button>
+    <button class="btn" id="gen" type="button">Add Trainee</button>
     <div class="msg" id="err"></div>
   </section>
 
@@ -342,7 +349,7 @@ async function loadBatches(){
     const g = await api("data.json"); if(!g.ok) return;
     bData = JSON.parse(b64ToUtf8((await g.json()).content));
     const names = [...new Set(Object.values(bData.certificates || {}).map(c => c.batch).filter(Boolean))].sort((a, b) => a.localeCompare(b, undefined, { numeric:true }));
-    $("bsel").innerHTML = ""; names.forEach(n => $("bsel").add(new Option(n, n))); showState();
+    $("bsel").innerHTML = ""; names.forEach(n => $("bsel").add(new Option(n, n))); showState(); fillIssue();
   }catch(e){}
 }
 $("bsel").onchange = showState;
@@ -439,23 +446,73 @@ async function addCertificate(id, entry){
   throw new Error("Save korte parini. Ektu pore abar try koro.");
 }
 
+let mode = "adm";
+function setMode(m){
+  mode = m;
+  document.querySelectorAll("#modeSeg button").forEach(b => b.classList.toggle("on", b.dataset.m === m));
+  const show = m === "adm" ? [1, 2, 3, 6] : [0, 4, 5]; let first = true;
+  document.querySelectorAll("#formSec .row").forEach((r, i) => { const on = show.includes(i); r.classList.toggle("hidden", !on); r.classList.toggle("first", on && first); if(on) first = false; });
+  $("gen").textContent = m === "adm" ? "Add Trainee" : "Issue Certificate";
+  showErr($("err"), "");
+  if(m === "iss") loadBatches();
+}
+document.querySelectorAll("#modeSeg button").forEach(b => b.onclick = () => setMode(b.dataset.m));
+function fillIssue(){
+  const sel = $("pick2"), items = Object.entries((bData && bData.certificates) || {}).filter(([, c]) => c.status === "enrolled")
+    .sort((a, b) => (a[1].batch || "").localeCompare(b[1].batch || "", undefined, { numeric:true }) || (a[1].name || "").localeCompare(b[1].name || ""));
+  sel.innerHTML = "";
+  if(!items.length){ sel.add(new Option("Kono enrolled trainee nai", "")); return; }
+  sel.add(new Option("Select trainee", ""));
+  items.forEach(([id, c]) => sel.add(new Option(`${c.name} \u00b7 ${c.batch}`, id)));
+}
+async function updateData(fn, message){
+  for(let a = 0; a < 3; a++){
+    const g = await api("data.json"); if(!g.ok) throw new Error(explain(g));
+    const f = await g.json(); let d;
+    try{ d = JSON.parse(b64ToUtf8(f.content)); }catch(e){ throw new Error("data.json er format bhul. GitHub e file ta check koro."); }
+    d.certificates = d.certificates || {}; fn(d);
+    const body = JSON.stringify({ message, content:utf8ToB64(JSON.stringify(d, null, 2) + "\n"), sha:f.sha });
+    const p = await api("data.json", { method:"PUT", body, headers:{ "Authorization":"Bearer " + cfg.token, "Accept":"application/vnd.github+json", "Content-Type":"application/json" } });
+    if(p.ok){ bData = d; return; }
+    if(p.status !== 409 && p.status !== 422) throw new Error(explain(p));
+  }
+  throw new Error("Save korte parini. Ektu pore abar try koro.");
+}
 $("gen").onclick = async () => {
   showErr($("err"), "");
-  const name = $("name").value.trim(), course = $("course").value.trim();
-  const issueStr = $("issue")._get(), completionStr = $("completion")._get();
-  const batch = $("batch").value.trim();
-  if(!name || !course || !batch || !issueStr || !completionStr){ showErr($("err"), "Shob ghor puron koro. Date duto puro likho (DD/MM/YYYY)."); return; }
-  const issue = parseDMY(issueStr), completion = parseDMY(completionStr);
-  if(!photoB64){ showErr($("err"), "Trainee er chhobi dao."); return; }
-  if(!issue || !completion){ showErr($("err"), "Date DD/MM/YYYY format e likho, jemon 25/10/2026."); return; }
-  const b = $("gen"); b.disabled = true; b.innerHTML = '<span class="spin"></span>Saving...';
+  const b = $("gen"), today = new Date().toISOString().slice(0, 10);
+  let id, heading, note;
   try{
-    const id = `${cfg.prefix}-${new Date().getFullYear()}-${rid()}`;
-    await putFile(`photos/${id}.jpg`, photoB64, `Add photo ${id}`);
-    await addCertificate(id, { name, course, batch, issue, completion, photo:`photos/${id}.jpg`, status:"valid" });
+    if(mode === "adm"){
+      const name = $("name").value.trim(), course = $("course").value.trim(), batch = $("batch").value.trim();
+      if(!name || !course || !batch){ showErr($("err"), "Batch, naam ar course puron koro."); return; }
+      if(!photoB64){ showErr($("err"), "Trainee er chhobi dao."); return; }
+      b.disabled = true; b.innerHTML = '<span class="spin"></span>Saving...';
+      id = `${cfg.prefix}-${new Date().getFullYear()}-${rid()}`;
+      await putFile(`photos/${id}.jpg`, photoB64, `Add photo ${id}`);
+      await updateData(d => {
+        if(d.certificates[id]) throw new Error("ID duplicate hoyeche, abar try koro.");
+        d.certificates[id] = { name, course, batch, photo:`photos/${id}.jpg`, status:"enrolled", admitted:today };
+      }, `Enroll ${id}`);
+      heading = "TRAINEE ADDED"; note = "Course shesh hole 'Issue Certificate' theke certificate dao.";
+    }else{
+      id = $("pick2").value;
+      const issueStr = $("issue")._get(), completionStr = $("completion")._get();
+      if(!id){ showErr($("err"), "Trainee select koro."); return; }
+      if(!issueStr || !completionStr){ showErr($("err"), "Date duto puro likho (DD/MM/YYYY)."); return; }
+      const issue = parseDMY(issueStr), completion = parseDMY(completionStr);
+      if(!issue || !completion){ showErr($("err"), "Date DD/MM/YYYY format e likho, jemon 25/10/2026."); return; }
+      b.disabled = true; b.innerHTML = '<span class="spin"></span>Saving...';
+      await updateData(d => {
+        const c = d.certificates[id]; if(!c) throw new Error("Trainee paoa jayni.");
+        c.status = "valid"; c.issue = issue; c.completion = completion;
+      }, `Issue certificate ${id}`);
+      heading = "CERTIFICATE ISSUED"; note = "Saved to the verification database automatically.";
+    }
     const url = `https://${cfg.owner}.github.io/${cfg.repo}/?id=${id}`;
     cur = { id, url };
     $("cid").textContent = id;
+    document.querySelector(".hero h2").textContent = heading; document.querySelector(".hero p").textContent = note;
     $("qr").innerHTML = "";
     new QRCode($("qr"), { text:url, width:512, height:512, correctLevel:QRCode.CorrectLevel.H });
     bLoaded = false;
@@ -465,7 +522,7 @@ $("gen").onclick = async () => {
   }catch(e){
     showErr($("err"), e.message || "Kichu ekta bhul hoyeche.");
   }
-  b.disabled = false; b.textContent = "Generate ID & QR";
+  b.disabled = false; b.textContent = mode === "adm" ? "Add Trainee" : "Issue Certificate";
 };
 
 $("dl").onclick = () => {
@@ -495,6 +552,7 @@ $("cp").onclick = async () => {
   setTimeout(() => { $("cpt").textContent = "Copy"; $("cp").classList.remove("done"); }, 1600);
 };
 ["issue", "completion"].forEach(id => initDate($(id)));
+setMode("adm");
 setView();
 </script>
 </body>

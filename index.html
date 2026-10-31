@@ -197,6 +197,11 @@ function row(ic, cls, label, valueHtml){
 }
 
 function render(id, c){
+  if(c.status === "enrolled"){
+    hero("warn", ICON.warn, "NOT YET ISSUED", `${CENTER} has not issued this certificate yet. The trainee is still enrolled in the course.`);
+    $("result").innerHTML = `<div class="idbox"><div><small>Certificate ID</small><div class="id">${esc(id)}</div></div></div>`;
+    return;
+  }
   const valid = (c.status || "valid") === "valid";
   if(valid){
     hero("", ICON.check, "VERIFIED AUTHENTIC", `This certificate is valid and officially recognized by ${CENTER}.`);
