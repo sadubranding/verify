@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#f2f2f7">
+<meta name="robots" content="noindex,nofollow">
+<title>Print Desk</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+:root{color-scheme:light;--bg:#f2f2f7;--card:#fff;--text:#1c1c1e;--muted:#6c6c70;--sep:rgba(60,60,67,.14);--blue:#007aff;--blue-bg:#b9d4ff;--blue-ink:#052557;--green-ink:#14693a;--green-bg:#e3f7e9;--shadow:0 1px 2px rgba(0,0,0,.04),0 8px 28px rgba(0,0,0,.06)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Inter","Segoe UI",Roboto,"Noto Sans Bengali",Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.4;padding:max(20px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(40px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+.wrap{max-width:760px;margin:0 auto}
+.top{display:flex;justify-content:center;margin-top:8px}
+.pill{background:var(--blue-bg);color:var(--blue-ink);font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:9px 18px;border-radius:999px}
+h1{margin:18px 0 6px;text-align:center;font-size:clamp(26px,7vw,40px);line-height:1.1;font-weight:800;letter-spacing:-.03em}
+.sub{margin:0 0 18px;text-align:center;color:var(--muted);font-size:16px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:6px 2px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:0;background:var(--card);color:var(--text);font:inherit;font-size:15px;font-weight:600;padding:9px 16px;border-radius:999px;box-shadow:var(--shadow);cursor:pointer}
+.chip.on{background:var(--blue);color:#fff}
+.banner{margin-top:14px;border-radius:18px;padding:14px 18px;font-weight:600;font-size:15px;background:var(--green-bg);color:var(--green-ink)}
+.banner.p{background:#fff1d6;color:#7a4a00}
+.tools{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.btn{flex:1;min-width:160px;border:0;background:var(--blue);color:#fff;font:inherit;font-size:15px;font-weight:600;padding:0 18px;min-height:46px;border-radius:14px;cursor:pointer}
+.btn.sec{background:var(--blue-bg);color:var(--blue-ink)}
+.btn:disabled{opacity:.6;cursor:wait}
+.hint{margin:10px 6px 0;font-size:13px;color:var(--muted)}
+.group{margin-top:14px;background:var(--card);border-radius:22px;box-shadow:var(--shadow);overflow:hidden}
+.item{display:flex;align-items:center;gap:14px;padding:14px 16px;position:relative}
+.item+.item::before{content:"";position:absolute;top:0;left:16px;right:0;height:1px;background:var(--sep)}
+.no{flex:none;width:26px;font-size:13px;font-weight:700;color:var(--muted)}
+.info{flex:1;min-width:0}
+.cp{display:block;width:100%;text-align:left;border:0;background:transparent;color:inherit;font:inherit;padding:2px 0;cursor:copy;border-radius:6px}
+.cp:active,.cp.ok{background:var(--green-bg)}
+.nm{font-size:17px;font-weight:700}
+.idv{font-size:14px;font-weight:700;letter-spacing:.03em;color:var(--blue-ink)}
+.dt{font-size:13px;color:var(--muted)}
+.qr{flex:none;width:76px;height:76px;background:#fff;border:1px solid var(--sep);border-radius:8px;overflow:hidden}
+.qr canvas,.qr img{width:100%!important;height:100%!important;display:block}
+.empty{padding:28px;text-align:center;color:var(--muted)}
+@media print{
+  body{background:#fff;padding:0}
+  .noprint{display:none!important}
+  .group{box-shadow:none;border-radius:0;margin:0}
+  .item{break-inside:avoid;padding:10px 4px;border-bottom:1px solid #ccc}
+  .item::before{display:none}
+  .qr{width:2.4cm;height:2.4cm}
+  .cp{cursor:default}
+  .head{display:block!important;margin-bottom:10px;font-size:14px}
+}
+.head{display:none}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="noprint">
+    <div class="top"><span class="pill">Print Desk</span></div>
+    <h1>Certificate Print Data</h1>
+    <p class="sub" id="center">Loading...</p>
+    <div class="chips" id="chips"></div>
+    <div class="banner" id="banner" style="display:none"></div>
+    <div class="tools">
+      <button class="btn sec" id="csvb" type="button">Download Excel (CSV)</button>
+      <button class="btn" id="zipb" type="button">Download QR Images (ZIP)</button>
+      <button class="btn sec" id="prb" type="button">Print Proof Sheet</button>
+    </div>
+    <p class="hint">Naam, ID ba date e <b>click/tap</b> korle copy hoye jabe. Design e paste koro. QR image ZIP er bhitore ID naame pabe.</p>
+  </div>
+  <div class="head" id="head"></div>
+  <div class="group" id="list"></div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const base = new URL("./", location.href).href;
+const fmt = s => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || ""); return m ? `${m[3]}/${m[2]}/${m[1]}` : (s || ""); };
+let ALL = [], BAT = {}, batch = "";
+
+const cur = () => ALL.filter(x => x.batch === batch && (x.status || "valid") === "valid");
+function qrCanvas(text, size){ const h = document.createElement("div"); new QRCode(h, { text, width:size, height:size, correctLevel:QRCode.CorrectLevel.H }); return h.querySelector("canvas"); }
+const io = new IntersectionObserver(es => es.forEach(e => {
+  if(!e.isIntersecting) return; io.unobserve(e.target);
+  const c = qrCanvas(base + "?id=" + e.target.dataset.id, 220); if(c) e.target.appendChild(c);
+}), { rootMargin:"200px" });
+
+function render(){
+  const names = Object.keys(BAT).sort((a, b) => a.localeCompare(b, undefined, { numeric:true }));
+  if(!names.length){ $("chips").innerHTML = ""; $("list").innerHTML = '<div class="empty">Kono batch print er jonno approve kora hoyni. Owner/manager ke approve korte bolo.</div>'; return; }
+  if(!BAT[batch]) batch = names[0];
+  $("chips").innerHTML = names.map(n => `<button class="chip ${n === batch ? "on" : ""}" data-b="${esc(n)}">${esc(n)}</button>`).join("");
+  document.querySelectorAll(".chip").forEach(b => b.onclick = () => { batch = b.dataset.b; render(); });
+  const s = BAT[batch], list = cur(), bn = $("banner");
+  bn.style.display = "block";
+  bn.className = "banner" + (s.state === "printed" ? " p" : "");
+  bn.textContent = s.state === "printed" ? `Already printed on ${fmt(s.date)}. Abar print korar age owner ke jiggesh koro.` : `Approved for print (${fmt(s.date)}). ${list.length} ta certificate.`;
+  $("head").textContent = `${batch} - ${list.length} certificates`;
+  $("list").innerHTML = list.length ? list.map((x, i) => `
+    <div class="item">
+      <div class="no">${i + 1}</div>
+      <div class="info">
+        <button class="cp nm" data-v="${esc(x.name)}">${esc(x.name)}</button>
+        <button class="cp idv" data-v="${esc(x.id)}">${esc(x.id)}</button>
+        <div class="dt">Issue <button class="cp" style="display:inline;width:auto" data-v="${esc(fmt(x.issue))}">${esc(fmt(x.issue))}</button>
+        &middot; Completion <button class="cp" style="display:inline;width:auto" data-v="${esc(fmt(x.completion))}">${esc(fmt(x.completion))}</button></div>
+      </div>
+      <div class="qr" data-id="${esc(x.id)}"></div>
+    </div>`).join("") : '<div class="empty">Ei batch e kono valid certificate nai.</div>';
+  document.querySelectorAll(".qr").forEach(e => io.observe(e));
+}
+
+document.addEventListener("click", async e => {
+  const b = e.target.closest(".cp"); if(!b) return;
+  try{ await navigator.clipboard.writeText(b.dataset.v); }
+  catch(_){ const t = document.createElement("textarea"); t.value = b.dataset.v; document.body.appendChild(t); t.select(); try{ document.execCommand("copy"); }catch(__){} t.remove(); }
+  b.classList.add("ok"); setTimeout(() => b.classList.remove("ok"), 700);
+});
+
+function csv(list){
+  const q = v => `"${String(v ?? "").replace(/"/g, '""')}"`;
+  return "\ufeff" + [["Batch","Certificate ID","Trainee Name","Course","Issue Date","Completion Date","Verify Link"]]
+    .concat(list.map(x => [x.batch, x.id, x.name, x.course, fmt(x.issue), fmt(x.completion), base + "?id=" + x.id]))
+    .map(r => r.map(q).join(",")).join("\r\n");
+}
+function save(blob, name){ const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); }
+const fname = () => batch.replace(/[^\w-]+/g, "-");
+$("csvb").onclick = () => { const l = cur(); if(l.length) save(new Blob([csv(l)], { type:"text/csv;charset=utf-8" }), fname() + ".csv"); };
+$("prb").onclick = () => window.print();
+$("zipb").onclick = async () => {
+  const list = cur(); if(!list.length) return;
+  const b = $("zipb"); b.disabled = true;
+  try{
+    const z = new JSZip();
+    list.forEach((x, i) => {
+      b.textContent = `Preparing ${i + 1}/${list.length}...`;
+      const c = qrCanvas(base + "?id=" + x.id, 512), p = document.createElement("canvas");
+      p.width = p.height = 608; const g = p.getContext("2d");
+      g.fillStyle = "#fff"; g.fillRect(0, 0, 608, 608); g.drawImage(c, 48, 48, 512, 512);
+      z.file(`${x.id}.png`, p.toDataURL("image/png").split(",")[1], { base64:true });
+    });
+    z.file("trainees.csv", csv(list));
+    save(await z.generateAsync({ type:"blob" }), fname() + "-QR.zip");
+  }catch(e){ alert("ZIP banano jayni. Abar try koro."); }
+  b.disabled = false; b.textContent = "Download QR Images (ZIP)";
+};
+
+(async () => {
+  try{
+    const d = await (await fetch("data.json?t=" + Date.now())).json();
+    $("center").textContent = (d.center && d.center.name) || "";
+    BAT = d.batches || {};
+    ALL = Object.entries(d.certificates || {}).map(([id, c]) => Object.assign({ id }, c, { batch: c.batch || "No batch" }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+    render();
+  }catch(e){ $("center").textContent = ""; $("list").innerHTML = '<div class="empty">Data load hoyni. Internet check koro.</div>'; }
+})();
+</script>
+</body>
+</html>

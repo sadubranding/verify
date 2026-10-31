@@ -76,6 +76,7 @@ input[type=date]{min-height:28px}
  linear-gradient(rgba(255,255,255,.7),rgba(255,255,255,.7)) 0 33.33%/100% 1px no-repeat,
  linear-gradient(rgba(255,255,255,.7),rgba(255,255,255,.7)) 0 66.66%/100% 1px no-repeat}
 .sheet input[type=range]{margin:16px 0 2px;padding:0;accent-color:var(--blue)}
+select{width:100%;border:0;outline:0;background:transparent;color:var(--text);font:inherit;font-size:17px;font-weight:600;padding:3px 0}
 .two{display:flex;gap:10px}
 .two .btn{margin-top:14px}
 .btn{display:block;width:100%;border:0;background:var(--blue);color:#fff;font:inherit;font-size:17px;font-weight:600;padding:16px;border-radius:16px;cursor:pointer;margin-top:18px;transition:transform .12s,opacity .12s}
@@ -183,6 +184,18 @@ input[type=date]{min-height:28px}
     </div>
     <button class="btn" id="gen" type="button">Generate ID &amp; QR</button>
     <div class="msg" id="err"></div>
+  </section>
+
+  <section id="batchSec" class="hidden">
+    <div class="h3">Batch Print Status</div>
+    <div class="group">
+      <div class="row"><div class="ic c-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 9V4h10v5M7 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/><rect x="7" y="14" width="10" height="6" rx="1"/></svg></div>
+        <div class="grow"><div class="lab">Batch</div><select id="bsel"></select></div></div>
+      <div class="row"><div class="grow"><div class="lab">Status</div><div id="bstate" style="font-size:17px;font-weight:600">-</div></div></div>
+    </div>
+    <div class="two"><button class="btn sec" id="bapp" type="button">Approve for print</button><button class="btn" id="bprn" type="button">Mark as printed</button></div>
+    <div class="msg" id="berr"></div>
+    <p class="help">Print dokan shudhu "Approve" kora batch dekhte pabe. Approve korar age naam gulo bhalo kore check koro.</p>
   </section>
 
   <!-- Result -->
@@ -319,6 +332,37 @@ async function putFile(path, b64, message){
   const r = await api(path, { method:"PUT", body:JSON.stringify({ message, content:b64 }), headers:{ "Authorization":"Bearer " + cfg.token, "Accept":"application/vnd.github+json", "Content-Type":"application/json" } });
   if(!r.ok) throw new Error(explain(r));
 }
+let bLoaded = false, bData = null;
+function showState(){
+  const n = $("bsel").value, st = ((bData && bData.batches) || {})[n];
+  $("bstate").textContent = !n ? "Kono batch nai" : !st ? "Not approved yet" : st.state === "printed" ? "Printed" : "Approved for print";
+}
+async function loadBatches(){
+  try{
+    const g = await api("data.json"); if(!g.ok) return;
+    bData = JSON.parse(b64ToUtf8((await g.json()).content));
+    const names = [...new Set(Object.values(bData.certificates || {}).map(c => c.batch).filter(Boolean))].sort((a, b) => a.localeCompare(b, undefined, { numeric:true }));
+    $("bsel").innerHTML = ""; names.forEach(n => $("bsel").add(new Option(n, n))); showState();
+  }catch(e){}
+}
+$("bsel").onchange = showState;
+async function setBatch(state){
+  const n = $("bsel").value; if(!n) return; showErr($("berr"), "");
+  try{
+    for(let a = 0; a < 3; a++){
+      const g = await api("data.json"); if(!g.ok){ showErr($("berr"), explain(g)); return; }
+      const f = await g.json(), d = JSON.parse(b64ToUtf8(f.content));
+      d.batches = d.batches || {}; d.batches[n] = { state, date:new Date().toISOString().slice(0, 10) };
+      const body = JSON.stringify({ message:`Batch ${n}: ${state}`, content:utf8ToB64(JSON.stringify(d, null, 2) + "\n"), sha:f.sha });
+      const p = await api("data.json", { method:"PUT", body, headers:{ "Authorization":"Bearer " + cfg.token, "Accept":"application/vnd.github+json", "Content-Type":"application/json" } });
+      if(p.ok){ bData = d; showState(); return; }
+      if(p.status !== 409 && p.status !== 422){ showErr($("berr"), explain(p)); return; }
+    }
+    showErr($("berr"), "Save korte parini. Abar try koro.");
+  }catch(e){ showErr($("berr"), "Internet connection check koro."); }
+}
+$("bapp").onclick = () => setBatch("approved");
+$("bprn").onclick = () => setBatch("printed");
 function rid(){ const a = new Uint32Array(6); crypto.getRandomValues(a); return Array.from(a, n => CH[n % CH.length]).join(""); }
 
 function api(path, opts = {}){
@@ -340,6 +384,8 @@ function setView(){
   $("setup").classList.toggle("hidden", ready);
   $("connected").classList.toggle("hidden", !ready);
   $("formSec").classList.toggle("hidden", !ready || !$("result").classList.contains("hidden"));
+  $("batchSec").classList.toggle("hidden", !ready);
+  if(ready && !bLoaded){ bLoaded = true; loadBatches(); }
   if(ready) $("connText").textContent = `Connected: ${cfg.owner}/${cfg.repo}`;
 }
 
@@ -412,6 +458,7 @@ $("gen").onclick = async () => {
     $("cid").textContent = id;
     $("qr").innerHTML = "";
     new QRCode($("qr"), { text:url, width:512, height:512, correctLevel:QRCode.CorrectLevel.H });
+    bLoaded = false;
     $("formSec").classList.add("hidden");
     $("result").classList.remove("hidden");
     window.scrollTo({ top:0, behavior:"smooth" });
