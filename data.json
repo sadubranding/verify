@@ -46,6 +46,14 @@
       "photo": "photos/AQ-2026-63TN8G.jpg",
       "status": "enrolled",
       "admitted": "2026-10-31"
+    },
+    "AQ-2026-85N3S8": {
+      "name": "Test Name Three",
+      "course": "Professional Barista Training",
+      "batch": "Test Batch 01",
+      "photo": "photos/AQ-2026-85N3S8.jpg",
+      "status": "enrolled",
+      "admitted": "2026-10-31"
     }
   }
 }
