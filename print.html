@@ -40,7 +40,7 @@ h1{margin:18px 0 6px;text-align:center;font-size:clamp(26px,7vw,40px);line-heigh
 .idv{font-size:14px;font-weight:700;letter-spacing:.03em;color:var(--blue-ink)}
 .dt{font-size:13px;color:var(--muted)}
 .qr{flex:none;width:76px;height:76px;background:#fff;border:1px solid var(--sep);border-radius:8px;overflow:hidden}
-.qr canvas,.qr img{width:100%!important;height:100%!important;display:block}
+.qr canvas,.qr img{width:100%!important;height:100%!important;display:block!important}
 .empty{padding:28px;text-align:center;color:var(--muted)}
 @media print{
   body{background:#fff;padding:0}
@@ -53,9 +53,15 @@ h1{margin:18px 0 6px;text-align:center;font-size:clamp(26px,7vw,40px);line-heigh
   .head{display:block!important;margin-bottom:10px;font-size:14px}
 }
 .head{display:none}
+.nav{position:sticky;top:max(8px,env(safe-area-inset-top));z-index:40;display:flex;gap:4px;overflow-x:auto;max-width:520px;margin:0 auto 6px;padding:5px;background:rgba(255,255,255,.78);backdrop-filter:saturate(180%) blur(18px);-webkit-backdrop-filter:saturate(180%) blur(18px);border-radius:999px;box-shadow:0 2px 14px rgba(0,0,0,.08);scrollbar-width:none}
+.nav a{flex:1;text-align:center;white-space:nowrap;text-decoration:none;color:#1c1c1e;font-size:14px;font-weight:600;padding:8px 14px;border-radius:999px}
+.nav a.on{background:#007aff;color:#fff}
+.qrc{flex:none;display:flex;flex-direction:column;align-items:center;gap:6px}
+.dlq{border:0;background:var(--blue-bg);color:var(--blue-ink);font:inherit;font-size:12px;font-weight:600;padding:6px 10px;border-radius:999px;cursor:pointer}
 </style>
 </head>
 <body>
+<nav class="nav noprint"><a href="./">Verify</a><a href="dashboard.html">Dashboard</a><a href="admin.html">Admin</a><a href="print.html" class="on">Print</a></nav>
 <main class="wrap">
   <div class="noprint">
     <div class="top"><span class="pill">Print Desk</span></div>
@@ -108,7 +114,7 @@ function render(){
         <div class="dt">Issue <button class="cp" style="display:inline;width:auto" data-v="${esc(fmt(x.issue))}">${esc(fmt(x.issue))}</button>
         &middot; Completion <button class="cp" style="display:inline;width:auto" data-v="${esc(fmt(x.completion))}">${esc(fmt(x.completion))}</button></div>
       </div>
-      <div class="qr" data-id="${esc(x.id)}"></div>
+      <div class="qrc"><div class="qr" data-id="${esc(x.id)}"></div><button class="dlq noprint" data-id="${esc(x.id)}" type="button">Download QR</button></div>
     </div>`).join("") : '<div class="empty">Ei batch e kono valid certificate nai.</div>';
   document.querySelectorAll(".qr").forEach(e => io.observe(e));
 }
@@ -120,6 +126,12 @@ document.addEventListener("click", async e => {
   b.classList.add("ok"); setTimeout(() => b.classList.remove("ok"), 700);
 });
 
+document.addEventListener("click", e => {
+  const b = e.target.closest(".dlq"); if(!b) return;
+  const c = qrCanvas(base + "?id=" + b.dataset.id, 512), p = document.createElement("canvas");
+  p.width = p.height = 608; const g = p.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, 608, 608); g.drawImage(c, 48, 48, 512, 512);
+  p.toBlob(bl => save(bl, b.dataset.id + ".png"), "image/png");
+});
 function csv(list){
   const q = v => `"${String(v ?? "").replace(/"/g, '""')}"`;
   return "\ufeff" + [["Batch","Certificate ID","Trainee Name","Course","Issue Date","Completion Date","Verify Link"]]
