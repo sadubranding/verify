@@ -81,6 +81,8 @@ select{width:100%;border:0;outline:0;background:transparent;color:var(--text);fo
 .seg2 button{flex:1;border:0;background:transparent;color:var(--text);font:inherit;font-size:15px;font-weight:600;padding:9px;border-radius:10px;cursor:pointer}
 .seg2 button.on{background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.15)}
 .row.first::before{display:none}
+.btn.red{background:var(--red)}
+.msg.ok{background:var(--green-ink);color:#fff}
 .two{display:flex;gap:10px}
 .two .btn{margin-top:14px}
 .btn{display:block;width:100%;border:0;background:var(--blue);color:#fff;font:inherit;font-size:17px;font-weight:600;padding:16px;border-radius:16px;cursor:pointer;margin-top:18px;transition:transform .12s,opacity .12s}
@@ -154,7 +156,7 @@ select{width:100%;border:0;outline:0;background:transparent;color:var(--text);fo
 
   <!-- Form -->
   <section id="formSec" class="hidden">
-    <div class="seg2" id="modeSeg"><button type="button" data-m="adm" class="on">Admission</button><button type="button" data-m="iss">Issue Certificate</button></div>
+    <div class="seg2" id="modeSeg"><button type="button" data-m="adm" class="on">Admission</button><button type="button" data-m="iss">Issue</button><button type="button" data-m="mng">Manage</button></div>
     <div class="h3">Trainee Details</div>
     <div class="group">
       <div class="row"><div class="ic c-gray"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4.5 20c.8-3.6 3.8-5.5 7.5-5.5s6.7 1.9 7.5 5.5"/></svg></div>
@@ -190,6 +192,8 @@ select{width:100%;border:0;outline:0;background:transparent;color:var(--text);fo
         <img id="thumb" class="thumb hidden" alt=""></div>
     </div>
     <button class="btn" id="gen" type="button">Add Trainee</button>
+    <button class="btn red hidden" id="rev" type="button">Revoke Certificate</button>
+    <div class="msg ok" id="okm"></div>
     <div class="msg" id="err"></div>
   </section>
 
@@ -290,6 +294,7 @@ function initDate(root){
     const p = nat.value.split("-"); y.value = p[0]; m.value = p[1]; d.value = p[2]; mark();
   });
   root._get = get;
+  root._set = iso => { const q = (iso || "").split("-"); if(q.length === 3){ y.value = q[0]; m.value = q[1]; d.value = q[2]; } else segs.forEach(x => x.value = ""); mark(); };
   root._clear = () => { segs.forEach(s => s.value = ""); nat.value = ""; mark(); };
 }
 let photoB64 = "";
@@ -336,7 +341,8 @@ $("use").onclick = () => {
 };
 function clearPhoto(){ photoB64 = ""; $("thumb").classList.add("hidden"); $("pick").textContent = "Choose photo"; }
 async function putFile(path, b64, message){
-  const r = await api(path, { method:"PUT", body:JSON.stringify({ message, content:b64 }), headers:{ "Authorization":"Bearer " + cfg.token, "Accept":"application/vnd.github+json", "Content-Type":"application/json" } });
+  const ex = await api(path), meta = { message, content:b64 }; if(ex.ok) meta.sha = (await ex.json()).sha;
+  const r = await api(path, { method:"PUT", body:JSON.stringify(meta), headers:{ "Authorization":"Bearer " + cfg.token, "Accept":"application/vnd.github+json", "Content-Type":"application/json" } });
   if(!r.ok) throw new Error(explain(r));
 }
 let bLoaded = false, bData = null;
@@ -446,24 +452,49 @@ async function addCertificate(id, entry){
   throw new Error("Save korte parini. Ektu pore abar try koro.");
 }
 
-let mode = "adm";
+let mode = "adm", mode0 = "adm";
+const GL = { adm:"Add Trainee", iss:"Issue Certificate", mng:"Save Changes" };
 function setMode(m){
   mode = m;
   document.querySelectorAll("#modeSeg button").forEach(b => b.classList.toggle("on", b.dataset.m === m));
-  const show = m === "adm" ? [1, 2, 3, 6] : [0, 4, 5]; let first = true;
+  const prev = mode0; mode0 = m; const show = m === "adm" ? [1, 2, 3, 6] : m === "iss" ? [0, 4, 5] : [0, 1, 2, 3, 4, 5, 6]; let first = true;
+  if(prev === "mng" && m !== "mng"){ ["name", "batch"].forEach(k => $(k).value = ""); $("course").value = DEFAULT_COURSE; $("issue")._clear(); $("completion")._clear(); clearPhoto(); }
+  $("rev").classList.add("hidden"); showErr($("okm"), "");
   document.querySelectorAll("#formSec .row").forEach((r, i) => { const on = show.includes(i); r.classList.toggle("hidden", !on); r.classList.toggle("first", on && first); if(on) first = false; });
-  $("gen").textContent = m === "adm" ? "Add Trainee" : "Issue Certificate";
+  $("gen").textContent = GL[m];
   showErr($("err"), "");
-  if(m === "iss") loadBatches();
+  if(m !== "adm") loadBatches();
 }
 document.querySelectorAll("#modeSeg button").forEach(b => b.onclick = () => setMode(b.dataset.m));
+function fillManage(){
+  const id = $("pick2").value, c = ((bData && bData.certificates) || {})[id], issued = !!c && c.status !== "enrolled";
+  clearPhoto(); showErr($("okm"), "");
+  $("name").value = c ? c.name || "" : ""; $("course").value = c ? c.course || "" : DEFAULT_COURSE; $("batch").value = c ? c.batch || "" : "";
+  $("issue")._set(c && c.issue); $("completion")._set(c && c.completion);
+  document.querySelectorAll("#formSec .row").forEach((r, i) => { if(i === 4 || i === 5) r.classList.toggle("hidden", !issued); });
+  const rv = $("rev"); rv.classList.toggle("hidden", !(issued && mode === "mng"));
+  const revoked = !!c && c.status === "revoked"; rv.textContent = revoked ? "Restore Certificate" : "Revoke Certificate"; rv.classList.toggle("red", !revoked);
+}
+$("pick2").onchange = () => { if(mode === "mng") fillManage(); };
+$("rev").onclick = async () => {
+  const id = $("pick2").value, c = ((bData && bData.certificates) || {})[id]; if(!c) return;
+  const to = c.status === "revoked" ? "valid" : "revoked";
+  if(!confirm(to === "revoked" ? `${c.name} er certificate batil korbe? QR scan korle "Revoked" dekhabe.` : `${c.name} er certificate abar valid korbe?`)) return;
+  showErr($("err"), "");
+  try{
+    await updateData(d => { d.certificates[id].status = to; }, `${to === "revoked" ? "Revoke" : "Restore"} ${id}`);
+    fillIssue(); $("pick2").value = id; fillManage();
+    showErr($("okm"), to === "revoked" ? "Certificate batil kora hoyeche." : "Certificate abar valid kora hoyeche.");
+  }catch(e){ showErr($("err"), e.message || "Kichu ekta bhul hoyeche."); }
+};
 function fillIssue(){
-  const sel = $("pick2"), items = Object.entries((bData && bData.certificates) || {}).filter(([, c]) => c.status === "enrolled")
+  const sel = $("pick2"), items = Object.entries((bData && bData.certificates) || {}).filter(([, c]) => mode === "mng" || c.status === "enrolled")
     .sort((a, b) => (a[1].batch || "").localeCompare(b[1].batch || "", undefined, { numeric:true }) || (a[1].name || "").localeCompare(b[1].name || ""));
   sel.innerHTML = "";
-  if(!items.length){ sel.add(new Option("Kono enrolled trainee nai", "")); return; }
+  if(!items.length){ sel.add(new Option("Kono trainee nai", "")); return; }
   sel.add(new Option("Select trainee", ""));
-  items.forEach(([id, c]) => sel.add(new Option(`${c.name} \u00b7 ${c.batch}`, id)));
+  items.forEach(([id, c]) => sel.add(new Option(`${c.name} \u00b7 ${c.batch}` + (mode === "mng" ? ` \u00b7 ${c.status === "valid" ? "Issued" : c.status === "enrolled" ? "Enrolled" : "Revoked"}` : ""), id)));
+  if(mode === "mng") fillManage();
 }
 async function updateData(fn, message){
   for(let a = 0; a < 3; a++){
@@ -495,6 +526,30 @@ $("gen").onclick = async () => {
         d.certificates[id] = { name, course, batch, photo:`photos/${id}.jpg`, status:"enrolled", admitted:today };
       }, `Enroll ${id}`);
       heading = "TRAINEE ADDED"; note = "Course shesh hole 'Issue Certificate' theke certificate dao.";
+    }else if(mode === "mng"){
+      id = $("pick2").value;
+      const c0 = ((bData && bData.certificates) || {})[id];
+      const name = $("name").value.trim(), course = $("course").value.trim(), batch = $("batch").value.trim();
+      if(!c0){ showErr($("err"), "Trainee select koro."); return; }
+      if(!name || !course || !batch){ showErr($("err"), "Batch, naam ar course khali rakha jabe na."); return; }
+      let issue, completion;
+      if(c0.status !== "enrolled"){
+        issue = parseDMY($("issue")._get()); completion = parseDMY($("completion")._get());
+        if(!issue || !completion){ showErr($("err"), "Date DD/MM/YYYY format e likho, jemon 25/10/2026."); return; }
+      }
+      b.disabled = true; b.innerHTML = '<span class="spin"></span>Saving...';
+      let photo = "";
+      if(photoB64){ await putFile(`photos/${id}.jpg`, photoB64, `Update photo ${id}`); photo = `photos/${id}.jpg?v=${Date.now()}`; }
+      await updateData(d => {
+        const c = d.certificates[id]; if(!c) throw new Error("Trainee paoa jayni.");
+        Object.assign(c, { name, course, batch });
+        if(c.status !== "enrolled"){ c.issue = issue; c.completion = completion; }
+        if(photo) c.photo = photo;
+      }, `Edit ${id}`);
+      b.disabled = false; b.textContent = GL.mng;
+      const keep = id; fillIssue(); $("pick2").value = keep; fillManage();
+      showErr($("okm"), "Changes save hoyeche.");
+      return;
     }else{
       id = $("pick2").value;
       const issueStr = $("issue")._get(), completionStr = $("completion")._get();
@@ -522,7 +577,7 @@ $("gen").onclick = async () => {
   }catch(e){
     showErr($("err"), e.message || "Kichu ekta bhul hoyeche.");
   }
-  b.disabled = false; b.textContent = mode === "adm" ? "Add Trainee" : "Issue Certificate";
+  b.disabled = false; b.textContent = GL[mode];
 };
 
 $("dl").onclick = () => {
