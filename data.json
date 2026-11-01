@@ -47,5 +47,10 @@
       "state": "approved",
       "date": "2026-11-01"
     }
+  },
+  "batchList": {
+    "Batch 14 02": {
+      "created": "2026-11-01"
+    }
   }
 }
