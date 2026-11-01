@@ -44,8 +44,8 @@
   },
   "batches": {
     "Test Batch 01": {
-      "state": "printed",
-      "date": "2026-10-31"
+      "state": "approved",
+      "date": "2026-11-01"
     }
   }
 }
