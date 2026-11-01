@@ -78,9 +78,12 @@ input[type=date]{min-height:28px}
 .sheet input[type=range]{margin:16px 0 2px;padding:0;accent-color:var(--blue)}
 select{width:100%;border:0;outline:0;background:transparent;color:var(--text);font:inherit;font-size:17px;font-weight:600;padding:3px 0}
 .seg2{display:flex;background:rgba(118,118,128,.16);border-radius:12px;padding:3px;margin-top:22px}
-.seg2 button{flex:1;border:0;background:transparent;color:var(--text);font:inherit;font-size:15px;font-weight:600;padding:9px;border-radius:10px;cursor:pointer}
+.seg2 button{flex:1;border:0;background:transparent;color:var(--text);font:inherit;font-size:14px;font-weight:600;padding:9px 2px;border-radius:10px;cursor:pointer}
 .seg2 button.on{background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.15)}
 .row.first::before{display:none}
+.dz{margin-top:28px;text-align:center}
+.dz summary{color:var(--muted);font-size:14px;cursor:pointer}
+.dbtn{background:var(--card);color:var(--red);box-shadow:inset 0 0 0 1.5px var(--red)}
 .btn.red{background:var(--red)}
 .msg.ok{background:var(--green-ink);color:#fff}
 .two{display:flex;gap:10px}
@@ -164,7 +167,7 @@ select{width:100%;border:0;outline:0;background:transparent;color:var(--text);fo
 
   <!-- Form -->
   <section id="formSec" class="hidden">
-    <div class="seg2" id="modeSeg"><button type="button" data-m="adm" class="on">Admission</button><button type="button" data-m="iss">Issue</button><button type="button" data-m="mng">Manage</button></div>
+    <div class="seg2" id="modeSeg"><button type="button" data-m="adm" class="on">Admission</button><button type="button" data-m="iss">Issue</button><button type="button" data-m="mng">Manage</button><button type="button" data-m="prt">Print</button></div>
     <div class="h3">Trainee Details</div>
     <div class="group">
       <div class="row"><div class="ic c-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l9 4.5-9 4.5L3 8.5 12 4z"/><path d="M3 12.5l9 4.5 9-4.5"/></svg></div>
@@ -174,7 +177,7 @@ select{width:100%;border:0;outline:0;background:transparent;color:var(--text);fo
       <div class="row"><div class="ic c-gray"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4.5 20c.8-3.6 3.8-5.5 7.5-5.5s6.7 1.9 7.5 5.5"/></svg></div>
         <div class="grow"><div class="lab">Trainee</div><select id="pick2"></select></div></div>
       <div class="row"><div class="ic c-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l9 4.5-9 4.5L3 8.5 12 4z"/><path d="M3 12.5l9 4.5 9-4.5"/></svg></div>
-        <div class="grow"><div class="lab">Batch Name &amp; Number</div><div class="bn"><input id="bpre" placeholder="Batch" autocomplete="off" style="flex:2;width:auto"><input id="bnum" placeholder="01" inputmode="numeric" maxlength="3" autocomplete="off" style="flex:1;width:auto;text-align:center"></div><input id="batch" type="hidden"></div></div>
+        <div class="grow"><div class="lab">New Batch: Name &amp; Number</div><div class="bn"><input id="bpre" placeholder="Batch" autocomplete="off" style="flex:2;width:auto"><input id="bnum" placeholder="01" inputmode="numeric" maxlength="3" autocomplete="off" style="flex:1;width:auto;text-align:center"></div><input id="batch" type="hidden"></div></div>
       <div class="row"><div class="ic c-gray"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4.5 20c.8-3.6 3.8-5.5 7.5-5.5s6.7 1.9 7.5 5.5"/></svg></div>
         <div class="grow"><div class="lab">Trainee Name</div><input id="name" placeholder="Full name" autocomplete="off"></div></div>
       <div class="row"><div class="ic c-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h12v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V9z"/><path d="M16 10h1.5a2.5 2.5 0 0 1 0 5H16"/><path d="M8 3.5c0 1 .8 1.2.8 2.2M12 3.5c0 1 .8 1.2.8 2.2"/></svg></div>
@@ -204,8 +207,10 @@ select{width:100%;border:0;outline:0;background:transparent;color:var(--text);fo
         <img id="thumb" class="thumb hidden" alt=""></div>
     </div>
     <button class="btn" id="gen" type="button">Add Trainee</button>
+    <button class="btn hidden" id="mkb" type="button">Create Batch</button>
     <button class="btn red hidden" id="rev" type="button">Revoke Certificate</button>
     <div class="msg ok" id="okm"></div>
+    <details class="dz hidden" id="dz"><summary>Delete options</summary><button class="btn dbtn" id="delt" type="button">Delete this trainee</button><button class="btn dbtn" id="delb" type="button">Delete whole batch</button></details>
     <div class="msg" id="err"></div>
   </section>
 
@@ -365,6 +370,7 @@ function showState(){
   $("bstate").className = "stpill" + (st ? (st.state === "printed" ? " pr" : " ok") : "");
 }
 async function loadBatches(){
+  if(!cfg.token) return;
   try{
     const g = await api("data.json"); if(!g.ok) return;
     bData = JSON.parse(b64ToUtf8((await g.json()).content));
@@ -411,7 +417,7 @@ function setView(){
   $("setup").classList.toggle("hidden", ready);
   $("connected").classList.toggle("hidden", !ready);
   $("formSec").classList.toggle("hidden", !ready || !$("result").classList.contains("hidden"));
-  $("batchSec").classList.toggle("hidden", !ready);
+  $("batchSec").classList.toggle("hidden", !(ready && mode === "prt"));
   if(ready && !bLoaded){ bLoaded = true; loadBatches(); }
   if(ready) $("connText").textContent = `Connected: ${cfg.owner}/${cfg.repo}`;
 }
@@ -467,21 +473,22 @@ async function addCertificate(id, entry){
 }
 
 function syncB(){ const n = $("bnum").value.replace(/\D/g, ""); $("bnum").value = n; $("batch").value = [$("bpre").value.trim(), n].filter(Boolean).join(" "); }
-function setBatchUI(b){ const m = /^(.*?)\s*(\d+)$/.exec(b || ""); $("bpre").value = m ? m[1] : (b || ""); $("bnum").value = m ? m[2] : ""; syncB(); }
+function setBatchUI(b){ const m = /^(.*?)\s*(\d+)$/.exec(b || ""); $("bpre").value = m ? m[1] : (b || "Batch"); $("bnum").value = m ? m[2] : ""; syncB(); }
 $("bpre").addEventListener("input", syncB); $("bnum").addEventListener("input", syncB);
 $("bnum").addEventListener("blur", () => { if($("bnum").value.length === 1) $("bnum").value = "0" + $("bnum").value; syncB(); });
 let mode = "adm", mode0 = "adm";
-const GL = { adm:"Add Trainee", iss:"Issue Certificate", mng:"Save Changes" };
+const GL = { adm:"Add Trainee", iss:"Issue Certificate", mng:"Save Changes", prt:"" };
 function setMode(m){
   mode = m;
   document.querySelectorAll("#modeSeg button").forEach(b => b.classList.toggle("on", b.dataset.m === m));
-  const prev = mode0; mode0 = m; fbT = false; const show = m === "adm" ? [3, 4, 5, 8] : m === "iss" ? [0, 1, 2, 6, 7] : [0, 1, 2, 3, 4, 5, 6, 7, 8]; let first = true;
+  const prev = mode0; mode0 = m; fbT = false; const show = m === "adm" ? [0, 3, 4, 5, 8] : m === "iss" ? [0, 1, 2, 6, 7] : [0, 1, 2, 3, 4, 5, 6, 7, 8]; let first = true;
   if(prev === "mng" && m !== "mng"){ $("name").value = ""; setBatchUI(""); $("course").value = DEFAULT_COURSE; $("issue")._clear(); $("completion")._clear(); clearPhoto(); }
-  $("rev").classList.add("hidden"); showErr($("okm"), "");
+  [...$("formSec").children].forEach(el => { if(el.id !== "modeSeg") el.classList.toggle("hidden", m === "prt"); });
+  $("rev").classList.add("hidden"); $("mkb").classList.add("hidden"); $("dz").classList.toggle("hidden", m !== "mng"); $("batchSec").classList.toggle("hidden", m !== "prt"); showErr($("okm"), "");
   document.querySelectorAll("#formSec .row").forEach((r, i) => { const on = show.includes(i); r.classList.toggle("hidden", !on); r.classList.toggle("first", on && first); if(on) first = false; });
   $("gen").textContent = GL[m];
   showErr($("err"), "");
-  if(m !== "adm") loadBatches();
+  loadBatches(); if(m === "adm") admLayout();
 }
 document.querySelectorAll("#modeSeg button").forEach(b => b.onclick = () => setMode(b.dataset.m));
 function fillManage(){
@@ -510,8 +517,14 @@ function fillIssue(){
   const all = Object.entries((bData && bData.certificates) || {}), mng = mode === "mng";
   const pool = all.filter(([, c]) => mng || c.status === "enrolled");
   const bn = c => c.batch || "No batch", lastOf = n => all.reduce((m, [, c]) => bn(c) === n && (c.admitted || c.issue || "") > m ? (c.admitted || c.issue) : m, "");
-  const bs = [...new Set(all.map(([, c]) => bn(c)))].sort((a, b) => lastOf(b).localeCompare(lastOf(a)) || b.localeCompare(a, undefined, { numeric:true }));
+  const reg = (bData && bData.batchList) || {}, lo = n => { const t = lastOf(n), r = (reg[n] || {}).created || ""; return r > t ? r : t; };
+  const bs = [...new Set([...all.map(([, c]) => bn(c)), ...Object.keys(reg)])].sort((a, b) => lo(b).localeCompare(lo(a)) || b.localeCompare(a, undefined, { numeric:true }));
   const fb = $("fb"), keep = fbT ? fb.value : null; fb.innerHTML = "";
+  if(mode === "adm"){
+    bs.forEach(n => fb.add(new Option(n, n))); fb.add(new Option("+ Create new batch", "__new"));
+    fb.value = [...fb.options].some(o => o.value === keep) ? keep : (bs.length ? bs[0] : "__new");
+    admLayout(); return;
+  }
   fb.add(new Option(`All batches (${pool.length})`, ""));
   bs.forEach(n => { const k = pool.filter(([, c]) => bn(c) === n).length; if(k || mng) fb.add(new Option(`${n} (${k}${mng ? "" : " waiting"})`, n)); });
   fb.value = [...fb.options].some(o => o.value === keep) ? keep : (fb.options.length > 1 ? fb.options[1].value : "");
@@ -522,6 +535,7 @@ function fillIssue(){
   if(!items.length) sel.add(new Option("No trainee found", ""));
   else{
     sel.add(new Option(`Select trainee (${items.length})`, ""));
+    if(!mng && fb.value) sel.add(new Option(`ALL trainees in ${fb.value} (${items.length})`, "__all__"));
     const opt = ([id, c]) => new Option(`${c.name} \u00b7 ${id.slice(-6)}`, id);
     const grp = (label, ok) => { const g = items.filter(([, c]) => ok(c.status)); if(!g.length) return; const o = document.createElement("optgroup"); o.label = label; g.forEach(it => o.appendChild(opt(it))); sel.appendChild(o); };
     if(mng){ grp("Waiting for certificate (Enrolled)", s => s === "enrolled"); grp("Certificate issued", s => s === "valid" || !s); grp("Revoked", s => s === "revoked"); }
@@ -531,6 +545,60 @@ function fillIssue(){
   if(mng) fillManage();
 }
 $("fb").onchange = () => { fbT = true; fillIssue(); }; $("fq").oninput = fillIssue;
+function admLayout(){
+  const nw = $("fb").value === "__new", rows = document.querySelectorAll("#formSec .row");
+  rows[3].classList.toggle("hidden", !nw); [4, 5, 8].forEach(i => rows[i].classList.toggle("hidden", nw));
+  $("gen").classList.toggle("hidden", nw); $("mkb").classList.toggle("hidden", !nw);
+  if(nw && !$("bnum").value){ const mx = Math.max(0, ...[...$("fb").options].map(o => +((/(\d+)\s*$/.exec(o.value) || [])[1] || 0))); $("bnum").value = String(mx + 1).padStart(2, "0"); syncB(); }
+}
+$("mkb").onclick = async () => {
+  showErr($("err"), "");
+  const pre = $("bpre").value.trim(), num = $("bnum").value, name = [pre, num].filter(Boolean).join(" ");
+  if(!pre || !num){ showErr($("err"), "Batch naam ar number dao."); return; }
+  const b = $("mkb"); b.disabled = true; b.innerHTML = '<span class="spin"></span>Saving...';
+  try{
+    await updateData(d => {
+      d.batchList = d.batchList || {};
+      if(d.batchList[name] || Object.values(d.certificates).some(c => c.batch === name)) throw new Error(name + " age thekei ache. Number bodlao.");
+      d.batchList[name] = { created:new Date().toISOString().slice(0, 10) };
+    }, `Create ${name}`);
+    fbT = true; fillIssue(); $("fb").value = name; $("bnum").value = ""; admLayout();
+    showErr($("okm"), name + " create hoyeche. Ekhon trainee add koro.");
+  }catch(e){ showErr($("err"), e.message || "Kichu ekta bhul hoyeche."); }
+  b.disabled = false; b.textContent = "Create Batch";
+};
+async function delPhoto(path){
+  try{
+    path = (path || "").split("?")[0]; if(!path) return;
+    const g = await api(path); if(!g.ok) return;
+    await api(path, { method:"DELETE", body:JSON.stringify({ message:"Delete photo", sha:(await g.json()).sha }), headers:{ "Authorization":"Bearer " + cfg.token, "Accept":"application/vnd.github+json", "Content-Type":"application/json" } });
+  }catch(e){}
+}
+$("delt").onclick = async () => {
+  showErr($("err"), ""); showErr($("okm"), "");
+  const id = $("pick2").value, c = ((bData && bData.certificates) || {})[id];
+  if(!c){ showErr($("err"), "Prothome upor theke trainee select koro."); return; }
+  if(prompt(`${c.name} ke shompurno muche dibe, ferot ana jabe na. Nishchit hole DELETE likho:`) !== "DELETE") return;
+  try{
+    await updateData(d => { delete d.certificates[id]; }, `Delete ${id}`);
+    await delPhoto(c.photo); fillIssue(); showErr($("okm"), "Trainee delete hoyeche.");
+  }catch(e){ showErr($("err"), e.message || "Kichu ekta bhul hoyeche."); }
+};
+$("delb").onclick = async () => {
+  showErr($("err"), ""); showErr($("okm"), "");
+  const n = $("fb").value;
+  if(!n){ showErr($("err"), "Upor theke ekta batch select koro (All batches na)."); return; }
+  const list = Object.values((bData && bData.certificates) || {}).filter(c => (c.batch || "No batch") === n);
+  if(prompt(`${n} ar tar ${list.length} jon trainee shob muche jabe, ferot ana jabe na. Nishchit hole DELETE likho:`) !== "DELETE") return;
+  try{
+    await updateData(d => {
+      Object.keys(d.certificates).forEach(k => { if((d.certificates[k].batch || "No batch") === n) delete d.certificates[k]; });
+      if(d.batchList) delete d.batchList[n]; if(d.batches) delete d.batches[n];
+    }, `Delete ${n}`);
+    for(const c of list) await delPhoto(c.photo);
+    fbT = false; fillIssue(); showErr($("okm"), n + " delete hoyeche.");
+  }catch(e){ showErr($("err"), e.message || "Kichu ekta bhul hoyeche."); }
+};
 async function updateData(fn, message){
   for(let a = 0; a < 3; a++){
     const g = await api("data.json"); if(!g.ok) throw new Error(explain(g));
@@ -550,8 +618,8 @@ $("gen").onclick = async () => {
   let id, heading, note;
   try{
     if(mode === "adm"){
-      const name = $("name").value.trim(), course = $("course").value.trim(), batch = $("batch").value.trim();
-      if(!name || !course || !batch || !$("bnum").value){ showErr($("err"), "Batch naam, batch number, trainee naam ar course puron koro."); return; }
+      const name = $("name").value.trim(), course = $("course").value.trim(), batch = $("fb").value;
+      if(!name || !course || !batch || batch === "__new"){ showErr($("err"), "Batch select koro, trainee naam ar course puron koro."); return; }
       if(!photoB64){ showErr($("err"), "Trainee er chhobi dao."); return; }
       b.disabled = true; b.innerHTML = '<span class="spin"></span>Saving...';
       id = `${cfg.prefix}-${new Date().getFullYear()}-${rid()}`;
@@ -593,10 +661,10 @@ $("gen").onclick = async () => {
       const issue = parseDMY(issueStr), completion = parseDMY(completionStr);
       if(!issue || !completion){ showErr($("err"), "Date DD/MM/YYYY format e likho, jemon 25/10/2026."); return; }
       b.disabled = true; b.innerHTML = '<span class="spin"></span>Saving...';
-      await updateData(d => {
-        const c = d.certificates[id]; if(!c) throw new Error("Trainee paoa jayni.");
-        c.status = "valid"; c.issue = issue; c.completion = completion;
-      }, `Issue certificate ${id}`);
+      const ids = id === "__all__" ? Object.entries((bData && bData.certificates) || {}).filter(([, c]) => c.status === "enrolled" && (c.batch || "No batch") === $("fb").value).map(([k]) => k) : [id];
+      if(!ids.length) throw new Error("Ei batch e certificate baki kono trainee nai.");
+      await updateData(d => { ids.forEach(k => { const c = d.certificates[k]; if(!c) throw new Error("Trainee paoa jayni."); c.status = "valid"; c.issue = issue; c.completion = completion; }); }, ids.length > 1 ? `Issue ${ids.length} certificates` : `Issue certificate ${id}`);
+      if(id === "__all__"){ b.disabled = false; b.textContent = GL.iss; fbT = true; fillIssue(); showErr($("okm"), `${ids.length} jon er certificate issue hoyeche. Ekhon Print tab e giye batch approve koro.`); return; }
       heading = "CERTIFICATE ISSUED"; note = "Saved to the verification database automatically.";
     }
     const url = `https://${cfg.owner}.github.io/${cfg.repo}/?id=${id}`;
@@ -642,6 +710,7 @@ $("cp").onclick = async () => {
   setTimeout(() => { $("cpt").textContent = "Copy"; $("cp").classList.remove("done"); }, 1600);
 };
 ["issue", "completion"].forEach(id => initDate($(id)));
+setBatchUI("");
 setMode("adm");
 setView();
 </script>

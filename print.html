@@ -61,7 +61,6 @@ h1{margin:18px 0 6px;text-align:center;font-size:clamp(26px,7vw,40px);line-heigh
 </style>
 </head>
 <body>
-<nav class="nav noprint"><a href="./">Verify</a><a href="dashboard.html">Dashboard</a><a href="admin.html">Admin</a><a href="print.html" class="on">Print</a></nav>
 <main class="wrap">
   <div class="noprint">
     <div class="top"><span class="pill">Print Desk</span></div>
@@ -95,10 +94,11 @@ const io = new IntersectionObserver(es => es.forEach(e => {
 }), { rootMargin:"200px" });
 
 function render(){
-  const names = Object.keys(BAT).sort((a, b) => a.localeCompare(b, undefined, { numeric:true }));
+  const rank = n => (BAT[n].state === "printed" ? "0" : "1") + (BAT[n].date || "");
+  const names = Object.keys(BAT).sort((a, b) => rank(b).localeCompare(rank(a)) || b.localeCompare(a, undefined, { numeric:true }));
   if(!names.length){ $("chips").innerHTML = ""; $("list").innerHTML = '<div class="empty">Kono batch print er jonno approve kora hoyni. Owner/manager ke approve korte bolo.</div>'; return; }
   if(!BAT[batch]) batch = names[0];
-  $("chips").innerHTML = names.map(n => `<button class="chip ${n === batch ? "on" : ""}" data-b="${esc(n)}">${esc(n)}</button>`).join("");
+  $("chips").innerHTML = names.map(n => `<button class="chip ${n === batch ? "on" : ""}" data-b="${esc(n)}">${esc(n)}${BAT[n].state === "printed" ? " \u00b7 printed" : ""}</button>`).join("");
   document.querySelectorAll(".chip").forEach(b => b.onclick = () => { batch = b.dataset.b; render(); });
   const s = BAT[batch], list = cur(), bn = $("banner");
   bn.style.display = "block";
