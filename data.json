@@ -30,6 +30,14 @@
       "photo": "photos/AQ-2026-85N3S8.jpg",
       "status": "enrolled",
       "admitted": "2026-10-31"
+    },
+    "AQ-2026-5A4VTZ": {
+      "name": "Sharif Majumder",
+      "course": "Professional Barista Training",
+      "batch": "Test Batch 01",
+      "photo": "photos/AQ-2026-5A4VTZ.jpg",
+      "status": "enrolled",
+      "admitted": "2026-11-01"
     }
   },
   "batches": {
