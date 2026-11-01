@@ -40,6 +40,14 @@
       "admitted": "2026-11-01",
       "issue": "2026-11-01",
       "completion": "2026-11-01"
+    },
+    "AQ-2026-JK9YB7": {
+      "name": "Saif Rana",
+      "course": "Professional Barista Training",
+      "batch": "Batch 14 02",
+      "photo": "photos/AQ-2026-JK9YB7.jpg",
+      "status": "enrolled",
+      "admitted": "2026-11-01"
     }
   },
   "batches": {
