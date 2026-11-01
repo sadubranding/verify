@@ -50,16 +50,6 @@
       "admitted": "2026-11-01",
       "issue": "2026-10-17",
       "completion": "2026-09-20"
-    },
-    "AQ-2026-K3LK3L": {
-      "name": "Saif rana",
-      "course": "Professional Barista Training",
-      "batch": "Test Batch 02",
-      "photo": "photos/AQ-2026-K3LK3L.jpg",
-      "status": "valid",
-      "admitted": "2026-11-01",
-      "issue": "2026-11-01",
-      "completion": "2026-11-01"
     }
   },
   "batches": {
@@ -70,9 +60,6 @@
   },
   "batchList": {
     "Batch 14 02": {
-      "created": "2026-11-01"
-    },
-    "Test Batch 02": {
       "created": "2026-11-01"
     }
   }
