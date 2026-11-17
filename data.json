@@ -50,6 +50,14 @@
       "admitted": "2026-11-01",
       "issue": "2026-10-17",
       "completion": "2026-09-20"
+    },
+    "AQ-2026-RATXFF": {
+      "name": "Mehedi Sarker",
+      "course": "Professional Barista Training",
+      "batch": "Batch 15 03",
+      "photo": "photos/AQ-2026-RATXFF.jpg",
+      "status": "enrolled",
+      "admitted": "2026-11-17"
     }
   },
   "batches": {
