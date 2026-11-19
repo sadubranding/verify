@@ -120,6 +120,22 @@ h1{
 .si.web{background:linear-gradient(#a8704a,#7a4a28)}
 .si.fb{background:linear-gradient(#a8704a,#7a4a28)}
 @media (min-width:700px){.brand img{width:96px;height:96px}.brand b{font-size:22px}}
+/* Header refinement: calmer rhythm, clearer hierarchy */
+.portal{margin-top:4px}
+.pill{font-size:11.5px;letter-spacing:.1em;padding:8px 16px}
+h1{margin:20px 0 12px;line-height:1.1}
+.sub{margin:0 auto 32px;max-width:340px;font-size:16px;line-height:1.55;text-wrap:balance}
+.hero{padding:44px 16px 62px;border-radius:32px}
+.hero::after{content:"";position:absolute;right:-70px;bottom:-80px;width:230px;height:230px;border-radius:50%;background:rgba(255,255,255,.1);pointer-events:none;z-index:0}
+.badge,.hero h2,.hero p{z-index:1}
+.badge{width:84px;height:84px;margin:0 auto 22px;box-shadow:0 0 0 10px rgba(255,255,255,.22),0 10px 28px rgba(0,0,0,.14)}
+.badge svg{width:46px;height:46px}
+.hero h2{margin:0 0 14px}
+.hero p{max-width:310px;font-size:16px;line-height:1.55;text-wrap:balance}
+.idbox{position:relative;z-index:2;margin:-32px 14px 0;padding:18px 22px;box-shadow:0 0 0 6px var(--bg)}
+.idbox small{margin-bottom:6px}
+.group{margin-top:24px}
+.photo{margin-top:24px}
 /* Search */
 .search{margin-top:24px}
 .search h3{margin:0 0 10px 6px;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
